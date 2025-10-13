@@ -91,3 +91,13 @@ If you repeatedly refresh the Wordpress login page, you should see the logs adva
 ## Monitoring with OpenNMS
 
 OpenNMS can monitor the load balancer, each of the word press servers and the state of the database.
+
+browse to http://localhost:8980/opennms and login using user:admin password:admin
+
+Go to hte requistions page and inspect the test-wordpress.xml requisition. 
+Synchronise this requisition and see each of the servers in the nodes page
+
+
+## Business Service Monitoring
+
+
