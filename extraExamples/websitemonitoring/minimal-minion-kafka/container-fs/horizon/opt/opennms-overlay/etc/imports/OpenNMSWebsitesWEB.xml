@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<model-import xmlns="http://xmlns.opennms.org/xsd/config/model-import" date-stamp="2020-05-11T13:08:46.702+02:00" foreign-source="OpenNMSWebsitesWEB"
+   last-import="2020-05-11T13:08:51.738+02:00">
+   <node foreign-id="web02-srv" node-label="web02-srv">
+      <interface ip-addr="141.193.213.21" status="1" snmp-primary="N">
+         <monitored-service service-name="WebWM-onms-com">
+            <meta-data context="requisition" key="vhost" value="www.opennms.com" />
+            <meta-data context="requisition" key="path" value="/" />
+            <meta-data context="requisition" key="rrd-base-name" value="onms-com" />
+            <meta-data context="requisition" key="response" value="100-399" />
+            <meta-data context="requisition" key="scheme" value="https" />
+             <meta-data context="requisition" key="use-ssl-filter" value="true" />
+         </monitored-service>
+         <monitored-service service-name="ICMP" />
+<!--     <monitored-service service-name="HTTPS" /> -->
+      </interface>
+      
+      <interface ip-addr="64.71.144.203" status="1" snmp-primary="N">
+         <monitored-service service-name="WebWM-onms-disc">
+            <meta-data context="requisition" key="vhost" value="opennms.discourse.group" />
+            <meta-data context="requisition" key="path" value="/" />
+            <meta-data context="requisition" key="rrd-base-name" value="onms-dis" />
+            <meta-data context="requisition" key="scheme" value="https" />
+            <meta-data context="requisition" key="use-ssl-filter" value="true" />
+         </monitored-service>
+         <monitored-service service-name="ICMP" />
+         <monitored-service service-name="HTTPS" />
+      </interface>
+      
+      <interface ip-addr="3.89.174.207" status="1" snmp-primary="N">
+         <monitored-service service-name="WebWM-onms-matt">
+            <meta-data context="requisition" key="vhost" value="chat.opennms.com" />
+            <meta-data context="requisition" key="path" value="/login" />
+            <meta-data context="requisition" key="rrd-base-name" value="onms-chat" />
+            <meta-data context="requisition" key="scheme" value="https" />
+            <meta-data context="requisition" key="use-ssl-filter" value="true" />
+         </monitored-service>
+         <monitored-service service-name="ICMP" />
+         <monitored-service service-name="HTTPS" />
+      </interface>
+      
+      <interface ip-addr="3.219.5.128" status="1" snmp-primary="N">
+         <monitored-service service-name="WebWM-onms-sprt">
+            <meta-data context="requisition" key="vhost" value="support.opennms.com" />
+            <!-- this doesnt work because it rediects to freshdesk for authentication and comes back with forbidden -->
+            <!-- <meta-data context="requisition" key="path" value="/support/login" /> -->
+            <!-- this works because it is the call back from freshdesk if a login fails authentication -->
+            <meta-data context="requisition" key="path" value="/freshid/authorize_callback?error=login_required&amp;error_description=user_login_is_required" />
+            <meta-data context="requisition" key="response" value="100-401" />
+            <meta-data context="requisition" key="rrd-base-name" value="onms-sprt" />
+            <meta-data context="requisition" key="scheme" value="https" />
+            <meta-data context="requisition" key="use-ssl-filter" value="true" />
+         </monitored-service>
+         <monitored-service service-name="ICMP" />
+         <monitored-service service-name="HTTPS" />
+      </interface>
+
+      <interface ip-addr="34.194.50.139" status="1" snmp-primary="N">
+         <monitored-service service-name="WebWM-onms-doc">
+            <meta-data context="requisition" key="vhost" value="docs.opennms.com" />
+            <meta-data context="requisition" key="path" value="/start-page/1.0.0/index.html" />
+            <meta-data context="requisition" key="rrd-base-name" value="onms-docs" />
+            <meta-data context="requisition" key="scheme" value="https" />
+            <meta-data context="requisition" key="use-ssl-filter" value="true" />
+         </monitored-service>
+         <monitored-service service-name="ICMP" />
+         <monitored-service service-name="HTTPS" />
+      </interface>
+      
+      <meta-data context="requisition" key="port" value="443" />
+   </node>
+</model-import>

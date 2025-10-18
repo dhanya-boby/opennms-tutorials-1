@@ -1,0 +1,27 @@
+{
+	"cursorMarker": "*",
+	"databaseFilters": [
+		{
+			"databaseName": "USPAT"
+		},
+		{
+			"databaseName": "US-PGPUB"
+		},
+		{
+			"databaseName": "USOCR"
+		}
+	],
+	"fields": [
+		"documentId",
+		"patentNumber",
+		"title",
+		"datePublished",
+		"inventors",
+		"pageCount"
+	],
+	"op": "OR",
+	"pageSize": 50,
+	"q": "(11521175).pn.",
+	"searchType": 0,
+	"sort": "date_publ desc"
+}

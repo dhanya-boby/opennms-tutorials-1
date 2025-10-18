@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<model-import xmlns="http://xmlns.opennms.org/xsd/config/model-import" date-stamp="2022-12-16T06:43:49.732-05:00" foreign-source="WebsitesUspto"
+   last-import="2022-12-16T06:44:44.866-05:00">
+ 
+ <!-- default location - i.e monitored from OpenNMS core -->
+ <node foreign-id="web04-srv" node-label="web04-srv">
+      <interface ip-addr="52.202.75.138" status="1" snmp-primary="N">
+         <monitored-service service-name="WebPost-usptoq1">
+            <meta-data context="requisition" key="vhost" value="ppubs.uspto.gov" />
+            <meta-data context="requisition" key="path" value="/dirsearch-public/searches/generic" />
+            <meta-data context="requisition" key="rrd-base-name" value="usptoq1" />
+            <meta-data context="requisition" key="response" value="100-399" />
+            <meta-data context="requisition" key="scheme" value="https" />
+            <meta-data context="requisition" key="use-ssl-filter" value="true" />
+            <meta-data context="requisition" key="port" value="443" />
+            <meta-data context="requisition" key="response-text" value="US-11521175-B2" />
+            <meta-data context="requisition" key="payload" value="{&quot;cursorMarker&quot;:&quot;*&quot;,&quot;databaseFilters&quot;:[{&quot;databaseName&quot;:&quot;USPAT&quot;},{&quot;databaseName&quot;:&quot;US-PGPUB&quot;},{&quot;databaseName&quot;:&quot;USOCR&quot;}],&quot;fields&quot;:[&quot;documentId&quot;,&quot;patentNumber&quot;,&quot;title&quot;,&quot;datePublished&quot;,&quot;inventors&quot;,&quot;pageCount&quot;],&quot;op&quot;:&quot;OR&quot;,&quot;pageSize&quot;:50,&quot;q&quot;:&quot;(11521175).pn.&quot;,&quot;searchType&quot;:0,&quot;sort&quot;:&quot;date_publ desc&quot;}" />
+            <meta-data context="requisition" key="Accept" value="application/json"/>
+            <meta-data context="requisition" key="Content-Type" value="application/json"/>
+         </monitored-service>
+         
+         <!-- check dns lookup works  -->
+         <monitored-service service-name="WebDNS-usptoq1">
+            <meta-data context="requisition" key="rrd-base-name" value="ppubs" />
+            <meta-data context="requisition" key="lookup" value="ppubs.uspto.gov" />
+         </monitored-service>
+         
+      </interface>
+      
+      <!-- note - only ipv6 response to ping6 tmsearch.uspto.gov no ping 151.207.240.78 -->
+      <interface ip-addr="151.207.240.78" status="1" snmp-primary="N">
+         <monitored-service service-name="UsptoTradeSearch">
+         </monitored-service>
+         
+         <!-- check dns lookup works  -->
+         <monitored-service service-name="WebDNS-tmsearch">
+            <meta-data context="requisition" key="rrd-base-name" value="tmsearch" />
+            <meta-data context="requisition" key="lookup" value="tmsearch.uspto.gov" />
+         </monitored-service>
+         
+      </interface>
+</node>
+
+<!-- monitored from a minion at location minion-europe-1 -->
+<node location="minion-europe-1" foreign-id="web05-srv" node-label="web05-srv">
+     <interface ip-addr="52.202.75.138" status="1" snmp-primary="N">
+         <monitored-service service-name="WebPost-usptoq1">
+            <meta-data context="requisition" key="vhost" value="ppubs.uspto.gov" />
+            <meta-data context="requisition" key="path" value="/dirsearch-public/searches/generic" />
+            <meta-data context="requisition" key="rrd-base-name" value="usptoq1" />
+            <meta-data context="requisition" key="response" value="100-399" />
+            <meta-data context="requisition" key="scheme" value="https" />
+            <meta-data context="requisition" key="use-ssl-filter" value="true" />
+            <meta-data context="requisition" key="port" value="443" />
+            <meta-data context="requisition" key="response-text" value="US-11521175-B2" />
+            <meta-data context="requisition" key="payload" value="{&quot;cursorMarker&quot;:&quot;*&quot;,&quot;databaseFilters&quot;:[{&quot;databaseName&quot;:&quot;USPAT&quot;},{&quot;databaseName&quot;:&quot;US-PGPUB&quot;},{&quot;databaseName&quot;:&quot;USOCR&quot;}],&quot;fields&quot;:[&quot;documentId&quot;,&quot;patentNumber&quot;,&quot;title&quot;,&quot;datePublished&quot;,&quot;inventors&quot;,&quot;pageCount&quot;],&quot;op&quot;:&quot;OR&quot;,&quot;pageSize&quot;:50,&quot;q&quot;:&quot;(11521175).pn.&quot;,&quot;searchType&quot;:0,&quot;sort&quot;:&quot;date_publ desc&quot;}" />
+            <meta-data context="requisition" key="Accept" value="application/json"/>
+            <meta-data context="requisition" key="Content-Type" value="application/json"/>
+         </monitored-service>
+                  
+         <!-- check dns lookup works  -->
+         <monitored-service service-name="WebDNS-usptoq1">
+            <meta-data context="requisition" key="rrd-base-name" value="ppubs" />
+            <meta-data context="requisition" key="lookup" value="ppubs.uspto.gov" />
+         </monitored-service>
+         
+      </interface>
+      
+      <!-- note - only ipv6 response to ping6 tmsearch.uspto.gov no ping 151.207.240.78 -->
+      <interface ip-addr="151.207.240.78" status="1" snmp-primary="N">
+         <monitored-service service-name="UsptoTradeSearch">
+         </monitored-service>
+         
+         <!-- check dns lookup works  -->
+         <monitored-service service-name="WebDNS-tmsearch">
+            <meta-data context="requisition" key="rrd-base-name" value="tmsearch" />
+            <meta-data context="requisition" key="lookup" value="tmsearch.uspto.gov" />
+         </monitored-service>
+         
+      </interface>
+
+</node>
+
+<node location="minion-usa-1" foreign-id="web06-srv" node-label="web06-srv">
+     <interface ip-addr="52.202.75.138" status="1" snmp-primary="N">
+         <monitored-service service-name="WebPost-usptoq1">
+            <meta-data context="requisition" key="vhost" value="ppubs.uspto.gov" />
+            <meta-data context="requisition" key="path" value="/dirsearch-public/searches/generic" />
+            <meta-data context="requisition" key="rrd-base-name" value="usptoq1" />
+            <meta-data context="requisition" key="response" value="100-399" />
+            <meta-data context="requisition" key="scheme" value="https" />
+            <meta-data context="requisition" key="use-ssl-filter" value="true" />
+            <meta-data context="requisition" key="port" value="443" />
+            <meta-data context="requisition" key="response-text" value="US-11521175-B2" />
+            <meta-data context="requisition" key="payload" value="{&quot;cursorMarker&quot;:&quot;*&quot;,&quot;databaseFilters&quot;:[{&quot;databaseName&quot;:&quot;USPAT&quot;},{&quot;databaseName&quot;:&quot;US-PGPUB&quot;},{&quot;databaseName&quot;:&quot;USOCR&quot;}],&quot;fields&quot;:[&quot;documentId&quot;,&quot;patentNumber&quot;,&quot;title&quot;,&quot;datePublished&quot;,&quot;inventors&quot;,&quot;pageCount&quot;],&quot;op&quot;:&quot;OR&quot;,&quot;pageSize&quot;:50,&quot;q&quot;:&quot;(11521175).pn.&quot;,&quot;searchType&quot;:0,&quot;sort&quot;:&quot;date_publ desc&quot;}" />
+            <meta-data context="requisition" key="Accept" value="application/json"/>
+            <meta-data context="requisition" key="Content-Type" value="application/json"/>
+         </monitored-service>
+                  
+         <!-- check dns lookup works  -->
+         <monitored-service service-name="WebDNS-usptoq1">
+            <meta-data context="requisition" key="rrd-base-name" value="ppubs" />
+            <meta-data context="requisition" key="lookup" value="ppubs.uspto.gov" />
+         </monitored-service>
+         
+      </interface>
+      
+      <!-- note - only ipv6 response to ping6 tmsearch.uspto.gov no ping 151.207.240.78 -->
+      <interface ip-addr="151.207.240.78" status="1" snmp-primary="N">
+         <monitored-service service-name="UsptoTradeSearch">
+         </monitored-service>
+         
+         <!-- check dns lookup works  -->
+         <monitored-service service-name="WebDNS-tmsearch">
+            <meta-data context="requisition" key="rrd-base-name" value="tmsearch" />
+            <meta-data context="requisition" key="lookup" value="tmsearch.uspto.gov" />
+         </monitored-service>
+
+      </interface>
+
+</node>
+
+
+</model-import>

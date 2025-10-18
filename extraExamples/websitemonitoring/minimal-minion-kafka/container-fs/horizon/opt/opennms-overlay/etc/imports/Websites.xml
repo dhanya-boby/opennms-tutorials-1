@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<model-import xmlns="http://xmlns.opennms.org/xsd/config/model-import" date-stamp="2022-12-16T06:43:49.732-05:00" foreign-source="Websites"
+   last-import="2022-12-16T06:44:44.866-05:00">
+   <node foreign-id="1671190975130" node-label="google">
+      <interface descr="google ip" ip-addr="172.217.169.36" status="1" snmp-primary="N">
+         <monitored-service service-name="Web-google">
+            <meta-data context="requisition" key="vhost" value="www.google.com" />
+            <meta-data context="requisition" key="path" value="/" />
+            <meta-data context="requisition" key="rrd-base-name" value="google" />
+         </monitored-service>
+         <monitored-service service-name="ICMP" />
+         <monitored-service service-name="HTTPS" />
+         
+         <monitored-service service-name="WebDNS-google">
+            <meta-data context="requisition" key="rrd-base-name" value="google" />
+            <meta-data context="requisition" key="lookup" value="www.google.com" />
+         </monitored-service>
+         
+         
+      </interface>
+
+   </node>
+   
+      <node foreign-id="1671190975555" node-label="uspto">
+      <interface descr="uspto-main" ip-addr="13.224.132.58" status="1" snmp-primary="N">
+         <monitored-service service-name="Web-uspto-main">
+            <meta-data context="requisition" key="vhost" value="www.uspto.gov" />
+            <meta-data context="requisition" key="path" value="/" />
+            <meta-data context="requisition" key="rrd-base-name" value="uspto-main" />
+         </monitored-service>
+         <monitored-service service-name="ICMP" />
+         <monitored-service service-name="HTTPS" />
+      </interface>
+      <interface descr="uspto-my" ip-addr="151.207.240.52" status="1" snmp-primary="N">
+         <monitored-service service-name="Web-uspto-main">
+            <meta-data context="requisition" key="vhost" value="my.uspto.gov" />
+            <meta-data context="requisition" key="path" value="/" />
+            <meta-data context="requisition" key="rrd-base-name" value="uspto-my" />
+         </monitored-service>
+         <monitored-service service-name="ICMP" />
+         <monitored-service service-name="HTTPS" />
+      </interface>
+
+   </node>
+
+</model-import>
