@@ -129,9 +129,7 @@ bin/send-event.pl uei.opennms.org/internal/reloadDaemonConfig -p 'daemonName Eve
 Perl is not installed in opennms containers but curl can be used instead (substitute --user username:password as appropriate)
 
 ```
-curl -X POST http://localhost:8980/opennms/rest/events -H 'Content-Type: application/json' -d '{"uei": "uei.o
-pennms.org/internal/reloadDaemonConfig", "severity": "NORMAL", "parms": [{"parmName": "daemonName", "value": "Eventd" }]
-}' --user admin:admin
+curl -X POST http://localhost:8980/opennms/rest/events -H 'Content-Type: application/json' -d '{"uei": "uei.opennms.org/internal/reloadDaemonConfig", "severity": "NORMAL", "parms": [{"parmName": "daemonName", "value": "Eventd" }] }' --user admin:admin
 ```
 
 You will see a reloadDaemonConfigSuccessful event in the event list
