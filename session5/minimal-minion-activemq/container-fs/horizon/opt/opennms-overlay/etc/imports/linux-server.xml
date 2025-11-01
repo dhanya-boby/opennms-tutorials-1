@@ -18,8 +18,8 @@
     <asset name="latitude" value="48.8258763"/>
   </node>
 
-  <node location="minion1-location" foreign-id="linux-03" node-label="linux-03">
-    <interface ip-addr="172.20.2.101" status="1" snmp-primary="P">
+  <node location="Default" foreign-id="linux-03" node-label="linux-03">
+    <interface ip-addr="172.20.0.103" status="1" snmp-primary="P">
       <monitored-service service-name="ICMP"/>
       <monitored-service service-name="SNMP"/>
     </interface>
@@ -28,7 +28,7 @@
   </node>
   
   <node location="minion1-location" foreign-id="linux-04" node-label="linux-04">
-    <interface ip-addr="172.20.2.102" status="1" snmp-primary="P">
+    <interface ip-addr="172.20.2.101" status="1" snmp-primary="P">
       <monitored-service service-name="ICMP"/>
       <monitored-service service-name="SNMP"/>
     </interface>
