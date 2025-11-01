@@ -88,5 +88,5 @@ File: `etc/collectd-configuration.xml`
 ### Step 5: Verify data collection
 
 ```
-docker compose exec core ls share/rrd/snmp/fs/linux-server/linux-01
+docker compose exec horizon ls share/rrd/snmp/fs/linux-server/linux-01
 ```

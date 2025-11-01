@@ -117,7 +117,7 @@ Question 3: What are the steps you take to add the load average metrics to the c
 - [ ] Verify if the metrics are collected as RRD files in the file system with:
 
 ```
-docker compose exec core ls share/rrd/snmp/fs/linux-server/linux-01
+docker compose exec horizon ls share/rrd/snmp/fs/linux-server/linux-01
 ```
 
 ### Task 3: Create RRD graph definition to visualise the metric
