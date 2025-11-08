@@ -30,12 +30,12 @@ The key files configuring SNMP data collection are in the following list.
 
 | Config File | Description |
 |:------------|-------------|
-| [etc/snmp-config.xmll](../../main/pristine-opennms-config-files/etc-pristine/snmp-config.xml)  | Configures SNMP (version, community strings etc) per device.<BR>We covered SNMP configuration using the web ui in [Exercise-2-1](../session2/Exercise-2-1.md)<BR>See also the example configurations in [etc/examples/snmp-config.xml](../../main/pristine-opennms-config-files/etc-pristine/examples/snmp-config.xml) |
+| [etc/snmp-config.xml](../../main/pristine-opennms-config-files/etc-pristine/snmp-config.xml)  | Configures SNMP (version, community strings etc) per device.<BR>We covered SNMP configuration using the web ui in [Exercise-2-1 Adding an SNMP Community String](../session2/Exercise-2-1.md#adding-an-snmp-community-string)<BR>See also the example configurations for SNMP proxys and SNMP v3 in [etc/examples/snmp-config.xml](../../main/pristine-opennms-config-files/etc-pristine/examples/snmp-config.xml) |
 | [etc/collectd-configuration.xml](../../main/pristine-opennms-config-files/etc-pristine/collectd-configuration.xml)|This file configures `collectd` to set up multiple polling packages that define filters to determine which IP addresses or node categories to collect each package from.<br>Packages can contain more than one protocol for data collection e.g SNMP, JMX, XML. Each protocol definition must reference the java class which is used to perform the collection. Each of these classes/protocols will have a different set of configuration files. |
 | [etc/datacollection-config.xml](../../main/pristine-opennms-config-files/etc-pristine/datacollection-config.xml)| This file provides the configuration for SNMP data collection. It references files in the [etc/datacollection  folder](../../main/pristine-opennms-config-files/etc-pristine/datacollection/). For instance see the file [etc/datacollection/netsnmp.xml](../../main/pristine-opennms-config-files/etc-pristine/datacollection/netsnmp.xml) |
 | [etc/datacollection-config.xml](../../main/pristine-opennms-config-files/etc-pristine/xml-datacollection-config.xml)| This file provides the configuration for XML and Json data collection. It references files in the [etc/xml-datacollection  folder](../../main/pristine-opennms-config-files/etc-pristine/xml-datacollection).<BR>A similar pattern exists for other data collection protocols such as JMX |
 
-The relationship between SNMP data collection configuration files is illustrated below
+The relationship between SNMP data collection configuration files is illustrated below:
 
 ![alt text](../session5/images/collectd-config.png "Figure collectd-config.png")
 
