@@ -13,6 +13,7 @@
     <interface ip-addr="172.20.0.102" status="1" snmp-primary="P">
       <monitored-service service-name="ICMP"/>
       <monitored-service service-name="SNMP"/>
+      <monitored-service service-name="SNMP-Custom-Agent"/>
     </interface>
     <asset name="longitude" value="9.1685303"/>
     <asset name="latitude" value="48.8258763"/>

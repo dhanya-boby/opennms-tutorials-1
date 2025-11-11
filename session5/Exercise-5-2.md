@@ -112,8 +112,37 @@ File: `etc/collectd-configuration.xml`
 </package>
 ```
 
+### Step 5: Define a SNMP-Custom-Agent service on an interface
+
+You need to define a new service to collect this data and provision it on the node. 
+
+In the requisition add the `SNMP-Custom-Agent` service to the interface on linux02
+
+You can do this on the UI:
+
+![alt text](../session5/images/requisition-snmpcustomagent.png "Figure requisition-snmpcustomagent.png")
+
+Or directly in the requisition file `etc/linux-server.xml`
+
+```
+ <node location="Default" foreign-id="linux-02" node-label="linux-02">
+    <interface ip-addr="172.20.0.102" status="1" snmp-primary="P">
+      <monitored-service service-name="ICMP"/>
+      <monitored-service service-name="SNMP"/>
+      <monitored-service service-name="SNMP-Custom-Agent"/>
+    </interface>
+    <asset name="longitude" value="9.1685303"/>
+    <asset name="latitude" value="48.8258763"/>
+  </node>
+```
+
 ### Step 5: Verify data collection
 
 ```
 docker compose exec horizon ls share/rrd/snmp/fs/linux-server/linux-01
 ```
+
+Also look on the resource graphs for the node:
+
+![alt text](../session5/images/graphs-hostresoursestorage.png "Figure graphs-hostresoursestorage.png") 
+
