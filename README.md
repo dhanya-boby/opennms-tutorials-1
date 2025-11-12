@@ -43,6 +43,8 @@ Before doing anything else you will need to follow these getting started instruc
 
 ## Prerequisites
 
+Please see the [Prerequisites Video](https://www.youtube.com/watch?v=M-FuNBkso4M) to help you get started.
+
 All of these examples have been tried on Docker Desktop installed on Windows 11.
 
 They should also work on Docker installed in linux  (e.g. Ubuntu 22 running in VirtualBox).
