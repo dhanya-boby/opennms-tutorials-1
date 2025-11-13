@@ -12,7 +12,11 @@
 * SNMP community strings
 * Importing a network - requisitions
 
-[Session 1 Video](https://youtu.be/NYE9KmMtooY) 
+# Session 1 Videos
+
+[Course Prerequisites](https://youtu.be/NYE9KmMtooY) - Checking out this repository using GIT and running an example using Docker Desktop
+
+[OpenNMS Overview Presentation](https://youtu.be/0BVz5_ozEog)
 
 ## What is OpenNMS
 
