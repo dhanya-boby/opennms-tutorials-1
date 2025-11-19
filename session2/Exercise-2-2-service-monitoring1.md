@@ -74,15 +74,14 @@ For instance, the HTTPS port will default to 443 but can be changed by a metadat
 <parameter key="port" value="${requisition:port|detector:port|443}" />
 ```
 
-In our example, we will change the url which is polled by adding the `/wordpress/` page to the HTTPS service definition.
+In our example below, we will change the url which is polled by adding the `/wordpress/` page to the HTTPS service definition.
 
 ```
          <parameter key="url" value="${requisition:url|detector:url|/}" />
 ```
 
-![alt text](../session2/images/load-balancer-requisition-definition.png "Figure load-balancer-requisition-definition.png")
 
-## service 3 tier network
+## Service 3 Tier Network
 
 Often sites are made scalable and more resilient through load-balancing a number of servers. 
 In this example we have installed three wordpress servers behind an NGINX load balancer.
@@ -240,15 +239,7 @@ After a polling period, you should see service failures on the front page.
 
 ![alt text](../session2/images/wpfailFront1.png "Figure wpfailFront1.png")
 
-## Business Service Monitoring
 
-It is possible to combine service outages using the Business Service Monitoring feature as shown below.
-
-![alt text](../session2/images/https-loadbalanceServiceTopology.png "Figure https-loadbalanceServiceTopology.png")
-
-For more information see [Business Service Monitoring](https://docs.opennms.com/horizon/33/operation/bsm/introduction.html)
-More details of configuring the graph of business services will be covered in a later session. 
-
-
+We have seen how we can poll individual services in Try the [Business Service Monitoring Exercise-2-3](../session2/Exercise2-3-business-service-monitoring.md) exercise we will look at how multiple polled services can be combined to understand the business impact of a failure.
 
 
