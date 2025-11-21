@@ -121,7 +121,7 @@ Saved changes will be permanent in a virtual machine or bare metal install of Op
 
 ### Editing files directly
 
-The OpenNMS containers already have the [vi editor](https://devhints.io/vim) installed but and you can use this if you wish
+The OpenNMS containers already have the [vi editor](https://devhints.io/vim) installed and you can use this if you wish.
 
 However we can make our lives a bit simpler if we also install the [nano editor](https://www.nano-editor.org/dist/latest/nano.html) because it is easier to use.
 
