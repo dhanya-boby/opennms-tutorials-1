@@ -28,6 +28,16 @@ The OpenNMS core SNMP trap port is set in the file [etc/trapd-configuration.xml]
 
 It is worth noting that this file also contains a setting `new-suspect-on-trap="false"` which if set `true` will cause OpenNMS to scan for a new node if it does not recognise the `from IP address` field of the trap packet.
 
+Use the new [session3/minimal-minion-activemq](../session3/minimal-minion-activemq/) project.
+
+(Note you should be copying this session into your myPracticeCourseWork folder if you want to keep a forked copy of your work).
+
+Start the project as in previousl examples using
+
+```
+cd minimal-minion-activemq
+docker compose up -d
+```
 In our example [docker-compose.yaml](../session3/minimal-minion-activemq/docker-compose.yaml) file, you will see that each of the Netsnmp containers exposes a different port on the host system. 
 And the core OpenNMS horizon and the minion1 receive SNMP traps from the host on 10162 and 1162 respectively.
 
