@@ -13,6 +13,12 @@ A very useful free tool for browsing SNMP MIBS and  generating SNMP traps is the
 
 Please install this software on your host system so we can use it to interrogate the SNMP agents in the example containers.
 
+---
+**NOTE**
+Some problems have been reported when using the host to pass snmp traps to docker containers running in docker on Windows System for Linux (WSL) rather than on Docker Desktop. 
+If this is the case, you can still generate traps using the Netsnmp method described further down the tutorial.
+---
+
 By convention,  SNMP agents use port `161` for responding to SNMP requests and `162` for receiving traps.
 
 However, in order to avoid conflicts with Linux NetSNMP, OpenNMS is usually set up to use a different port (`1162`) to receive traps.
