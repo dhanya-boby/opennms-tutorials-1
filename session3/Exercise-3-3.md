@@ -121,6 +121,7 @@ You can now paste the following event definitions into the file between the end 
                   auto-clean="false"/>
    </event>
 
+   <!-- Custom event configs go here -->
    <event-file>events/opennms.snmp.trap.translator.events.xml</event-file>
    ... 
 ```
