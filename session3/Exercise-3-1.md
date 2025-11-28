@@ -15,8 +15,10 @@ Please install this software on your host system so we can use it to interrogate
 
 ---
 **NOTE**
+
 Some problems have been reported when using the host to pass snmp traps to docker containers running in docker on Windows System for Linux (WSL) rather than on Docker Desktop. 
 If this is the case, you can still generate traps using the Netsnmp method described further down the tutorial.
+
 ---
 
 By convention,  SNMP agents use port `161` for responding to SNMP requests and `162` for receiving traps.
