@@ -58,7 +58,7 @@ The sysObjectID is the primary means by which OpenNMS knows what sort of device 
 Try walking the other containers by using a different port.
 Note that you will need to use community string `chubb` for chubb_camera_01
 
-## generating an event using MibBrowser
+## Generating events using MibBrowser
 
 You can use the MibBrowser to generate traps which are sent to OpenNMS.
 
