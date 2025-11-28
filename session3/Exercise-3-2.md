@@ -284,8 +284,8 @@ You can see that an important part of designing an event configuration is decidi
 There are many more options than we have covered for alarm and event definitions. 
 A good source of information is the [alarm and event documentation](https://docs.opennms.com/horizon/33/operation/deep-dive/alarms/configuring-alarms.html)
 
-But also looking at the [share/xsds/eventconf.xsd](../../main/pristine-opennms-config-files/xsds/eventconf.xsd) can also reveal more options.
+Looking at the [share/xsds/eventconf.xsd](../../main/pristine-opennms-config-files/xsds/eventconf.xsd) can also reveal more options for the xml configuration.
 
-We will look a real alarm definition exercise in much more detail in the `More complex case study example` in [Session3 More complex case study example (Camera example)](../session3#more-complex-case-study-example)
+We will look a more complex real alarm definition exercise in the next CHUBB Camera case study example [Exercise-3-3.md](../Exercise-3-3.md)
 
 
