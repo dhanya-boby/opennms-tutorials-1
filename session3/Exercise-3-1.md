@@ -16,7 +16,7 @@ Please install this software on your host system so we can use it to interrogate
 ---
 **NOTE**
 
-When running in docker directly on Windows System for Linux (WSL) rather than on Docker Desktop, some problems have been reported when using mibbrowser to snmp walk or send snmp traps to docker containers from the host PC. 
+When running the example in [docker directly on Windows System for Linux (WSL)](https://daniel.es/blog/how-to-install-docker-in-wsl-without-docker-desktop/) rather than on Docker Desktop, some problems have been reported when using mibbrowser to snmp walk or send snmp traps to docker containers from the host PC. 
 If this is the case, you can still generate traps using the Netsnmp method described further down the tutorial.
 
 ---
