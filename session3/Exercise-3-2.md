@@ -1,220 +1,291 @@
 
 [Main Menu](../README.md) | [Session 3](../session3/README.md) | [Exercise-3-2](../session3/Exercise-3-2.md)
 
-# Exercise 3-2 
+# Exercise 3-2 OpenNMS Event Configuration
 
-# OpenNMS Events
+### OpenNMS Event Configuration
 
-## Browsing the MIBs using MibBrowser
+The top level OpenNMS event configuration file is [etc/eventconf.xml](../../main/pristine-opennms-config-files/etc-pristine/eventconf.xml).
+This can contain its own event configurations but can also reference a list of event configuration files in the [etc/events](../../main/pristine-opennms-config-files/etc-pristine/events) folder.
 
-A very useful free tool for browsing SNMP MIBS and  generating SNMP traps is the Ireasoning Mib Browser which can be installed on Windows or Linux and is downloaded from 
+You will see that the [etc/events](../../main/pristine-opennms-config-files/etc-pristine/events) folder contains event definition files for the SNMP traps from many vendors with the vendor's prefixing the name of the event definition file.
 
-[https://www.ireasoning.com/mibbrowser.shtml](https://www.ireasoning.com/mibbrowser.shtml)
+It also contains a number of definitions for events generated internally by OpenNMS.
+These event files are usually named with `opennms` as the file name prefix.
+For example [opennms.internal.events.xml](../../main/pristine-opennms-config-files/etc-pristine/events/opennms.internal.events.xml)
 
-Please install this software on your host system so we can use it to interrogate the SNMP agents in the example containers.
+The order in which the event definition files are referenced in [etc/eventconf.xml](../../main/pristine-opennms-config-files/etc-pristine/eventconf.xml) is important.
+The first matching event definition found when interpreting an event will always be used. 
 
-By convention,  SNMP agents use port 161 for responding to SNMP requests and 162 for receiving traps.
+For this reason, the last file in the list is always [etc/events/opennms.catch-all.events.xml](../../main/pristine-opennms-config-files/etc-pristine/events/opennms.catch-all.events.xml) because this defines the event definition we have already seen for a completely unknown trap.
 
-However, in order to avoid conflicts with Linux NetSNMP, OpenNMS is usually set up to use a different port to receive traps.
-The OpenNMS core SNMP trap port is set in the file [etc/trapd-configuration.xml](../../main/pristine-opennms-config-files/etc-pristine/trapd-configuration.xml)
-
-It is worth noting that this file also contains a setting `new-suspect-on-trap="false"` which if set `true` will cause OpenNMS to scan for a new node if it does not recognise the `from IP address` field of the trap packet.
-
-In our example [docker-compose.yaml](../session3/minimal-minion-activemq/docker-compose.yaml) file, you will see that each of the netsnmp containers exposes a different port on the host system. 
-And the core OpenNMS horizon and the minion1 receive SNMP traps from the host on 10162 and 1162 respectively.
-
-| container | Native SNMP port | Host Exposed SNMP Port |
-| --------- | ---------------- | ---------------------- |
-| netsnmp_1_1 | 161 | 11161 |
-| netsnmp_1_2 | 161 | 11261 |
-| netsnmp_2_1 | 161 | 11361 |
-| netsnmp_2_2 | 161 | 11461 |
-| chubb_camera_01 | 161 | 11561 |
-| horizon | 1162 | 10162 |
-| minion1 | 1162 | 1162 |
-
-We can try walking the mib of netsnmp_1_1 using the mibbrowser.
-
-Set the address to localhost and open the advanced tab to set the port to `11161` and the community strings to `public`.
-
-![alt text](../session3/images/mibbrowser-advanced.png "Figure mibbrowser-advanced.png")
-
-When you select operations > walk and then GO, you should see output like this image.
-
-![alt text](../session3/images/mibbrowser-walk1.png "Figure mibbrowser-walk1.png")
-
-Note the line `Name/OID: sysObjectID.0; Value (OID): .1.3.6.1.4.1.8072.3.2.10`
-
-The sysObjectID will be different for every vendor and device and it is assigned to organisations by IANA.
-You can search a list of susObjectID mappings per vendor here [https://www.iana.org/assignments/enterprise-numbers/](https://www.iana.org/assignments/enterprise-numbers/)
-
-The sysObjectID is the primary means by which OpenNMS knows what sort of device it is and therefore what MIBS are available to collect data from.
-
-`8072` is the registered sysObjectID for NetSNMP. 
-
-`5813` is the registered sysObjectID for The OpenNMS Group, Inc.  (this is often used when OpenNMS forwards traps to other systems)
-
-Try walking the other containers by using a different port.
-Note that you will need to use community string `chubb` for chubb_camera_01
-
-## generating an event using MibBrowser
-
-You can use the MibBrowser to generate traps which are sent to OpenNMS.
-
-Select Tools > trap sender
-
-The figure below shows sending a LinkDown trap to horizon on port 1162
-
-With an SNMP V1 Trap you can specify the source IP address and in this case we have specified that the trap is coming from  `172.20.0.101` which corresponds to netsnmp_1_1.
+Normally, we wouldn't want to alter a configuration directly inside a container because we will loose this configuration when the container re-starts.
+However as an experiment, we are going to directly modify the eventconf.xml inside our container to include a definition for this new trap.
 
 ---
 **NOTE**
-
-SNMP v1 allows the source IP address to be set as a varbind but  with SNMP v2 traps, you can't specify the source IP as a varbind.
-In this case the UDP message must come from the actual device IP address set by the operating system.
-See an explanation here https://stackoverflow.com/questions/76741423/pysnmp-impossible-to-change-source-address
+Note that this exercise could also be performed using the file editing ui covered in [Session 2 modifying configuration files through the ui](../session2/README.md#modifying-configuration-files-through-the-ui)  
+However remember to reload the configuration as described below after editing it.
 
 ---
 
-![alt text](../session3/images/mibbrowser-sendlinkdowntrap.png "Figure mibbrowser-sendlinkdowntrap.png")
+The OpenNMS containers already have the [vi editor](https://devhints.io/vim) installed and you can use this if you wish.
 
-Send a down tap several times and then look at the OpenNMS event list to see that the traps have arrived as Agent Interface Down (linkDown Trap) events with WARNING severity.
+However we can make our lives a bit simpler if we also install the [nano editor](https://www.nano-editor.org/dist/latest/nano.html) because it is easier to use.
 
-http://localhost:8980/opennms/event/list
-
-![alt text](../session3/images/onms-eventlist1.png "Figure onms-eventlist1.png")
-
-On a separate tab, open the OpenNMS alarm list and you should see a single WARNING Alarm Agent Interface Down (linkDown Trap)  with a count of events.
-
-![alt text](../session3/images/onms-alarmlist1.png "Figure onms-alarmlist1.png")
-
-Now send a LinkUp trap from `172.20.0.101`
-
-You should see a NORMAL severity link up event in the event list
-
-You should also see that the corresponding alarm in the alarm list is now CLEARED and after a few minutes, it will be deleted from the list.
-
-We will return to the LinkDown trap in a future exercise but now we want to see how we can deal with a new trap which OpenNMS does not know about.
-
-## generating an unknown trap using mibbrowser
-
-In the Mibbrowser, we need to define and send a trap using the following configuration.
-
-| Snmp Trap Setting | value |
-| ----------------- | ------ |
-| host | localhost |
-| port | 1162 ( corresponds to minion ) |
-| source IP | 172.20.0.101 ( corresponds to netsnmp_1_1) |
-| type | SNMPv1 |
-| Generic | Other (Enterprise specific) (corresponds to 6) |
-| OID | .1.3.6.1.4.1.52330.6.2.0.1 |
-| varbind 1 |OID .1.3.6.1.4.1.52330.6.2.7.0 type OctetString value xxxx |
-| varbind 2 |OID .1.3.6.1.4.1.52330.6.2.1.0 type integer value 0 |
-| varbind 3 |OID .1.3.6.1.4.1.52330.6.2.5.0 type integer value 1 |
-
-![alt text](../session3/images/sendTrap1.png "Figure sendTrap1.png")
-
-Lets call this 
-
-`example trap definition 1 RAISE` event when varbind 3 (OID .1.3.6.1.4.1.52330.6.2.5.0) has a value of 1
-
-and 
-
-`example trap definition 1 CLEAR` event when varbind 3 (OID .1.3.6.1.4.1.52330.6.2.5.0) has a value of 0
-
-Try sending these two traps to horizon.
-When you look at the event list, you will see a new `unformatted enterprise event` for netsnmp_1_1 with the following contents:
-
-![alt text](../session3/images/unformattedEvent.png "Figure unformattedEvent.png")
-
-An `unformatted enterprise event` is an event OpenNMS displays when it receives a trap with an OID which it does not recognise. 
-
-Conveniently, the event description contains a suggested event configuration which we could use to match against this trap.
-It tells us that there were three varbinds and tells us the value of each. 
-It also tells us a suggested mask element which is used to match specific OIDs in a received trap
+(Note you may also need to change the background colour of the powershell to black to see all of the characters when editing xml markup. Use `Powershell>properties>colors>screen background`)
 
 ```
-The total number of arguments received with the trap: 3.
-They were:
-.1.3.6.1.4.1.52330.6.2.1.0="xxxx" .1.3.6.1.4.1.52330.6.2.1.0="0" .1.3.6.1.4.1.52330.6.2.5.0="1"
+# log into the opennms horizon container as the root user
+docker compose exec -u root horizon bash
 
-Here is a "mask" element definition that matches this event, for use in event configuration files:
-    <mask>
-      <maskelement>
-        <mename>id</mename>
-        <mevalue>.1.3.6.1.4.1.52330.6.2</mevalue>
-      </maskelement>
-      <maskelement>
-        <mename>generic</mename>
-        <mevalue>6</mevalue>
-      </maskelement>
-      <maskelement>
-        <mename>specific</mename>
-        <mevalue>1</mevalue>
-      </maskelement>
-    </mask> 
-```
+# install nano 
+root@horizon:/usr/share/opennms# microdnf -y install nano
 
-## Generating events using netsnmp
-
-MibBrowser is very useful but we actually want to simulate v2 traps coming from devices within our docker network.
-In this case we will use NetSNMP to send traps from the command line. 
-The following gives some basic examples but you should see the man page or the [NetSNMP documentation](http://www.net-snmp.org/) for more details.
-
-To send SNMP v2 taps, the  command format is 
-
-snmptrap [OPTIONS] AGENT TRAP-PARAMETERS
-
-The trap parameters are also called `varbinds` and consist of oid/type/value  where the type of the data can vary but we are using 'i' integer or 's ' string (for other possible types see [NetSNMP snmpset documentation](http://www.net-snmp.org/wiki/index.php/TUT:snmpset) i: INTEGER, u: unsigned INTEGER, t: TIMETICKS, a: IPADDRESS, o: OBJID, s: STRING, x: HEX STRING, d: DECIMAL STRING).
-
-Although officially, the OID of each varbind must be defined in the trap, OpenNMS is not concerned with and doesn't use the varbind OID but only the POSITION of the varbind value. (i.e. is it the first, second or third value etc. in the sequence). 
-So in these examples, Provided a varbind OID is set, it doesn't matter what the OID value is as it is only the order of the varbinds which are important to OpenNMS.
-(Please note however that the event translator may care about the varbind OID but more on this later)
-
-The following breaks down the content of a trap to be sent using snmptrap:
+# exit as root user 
+root@horizon:/usr/share/opennms# exit
 
 ```
-snmptrap -v 2c         \ # sets the trap version to v2c
-         -c public     \ # sets the community string to public
-         horizon:1162 \ # host:port. If port is omitted, 162 will be used
-         ""            \ # supplying no value by using two single quotes '' uses the operating system up time. Alternatively the format is  36:2:40:51.67 which equates to 36 days, 2 hours, 40 minutes and 51.67 seconds
-          .1.3.6.1.4.1.52330.6.2.0.1 \ #  trapoidd
-          .1.3.6.1.4.1.52330.6.2.7.0  s xxxx  \ # sequence of OID TYPE VALUE Here s is a string value xxxx
-          .1.3.6.1.4.1.52330.6.2.1.0  i 0  \ # here i is an integer of value 0 
-          .1.3.6.1.4.1.52330.6.2.5.0  i 1    # here i is an integer of value 1
-```
-
-Putting this all together we get 
+Now we can use nano to edit our configuration
 
 ```
-snmptrap -v 2c -c public horizon:1162 ""  .1.3.6.1.4.1.52330.6.2.0.1  .1.3.6.1.4.1.52330.6.2.7.0  s xxxx   .1.3.6.1.4.1.52330.6.2.1.0 i 0  .1.3.6.1.4.1.52330.6.2.5.0 i 1
-```
-This sends an SNMP v2c trap with an OID .1.3.6.1.4.1.52330.6.2.0.1 and with the first varbind as a string, the second as an integer 0 and the third as an integer 1
+# log into the opennms horizon container as the normal user
+docker compose exec horizon bash
 
-Try sending this trap to opennms horizon from the netsnmp_1_1 container
+# edit the eventconf.xml file
+nano etc/eventconf.xml
+```
+You can now paste the following event definitions into the file between the end of the `</global>` definition and the first `<event-file>` in the list
+
+```
+   ...
+   </global>
+
+   <event>
+      <mask>
+         <maskelement>
+            <mename>id</mename>
+            <mevalue>.1.3.6.1.4.1.52330.6.2</mevalue>
+         </maskelement>
+         <maskelement>
+            <mename>generic</mename>
+            <mevalue>6</mevalue>
+         </maskelement>
+         <maskelement>
+            <mename>specific</mename>
+            <mevalue>1</mevalue>
+         </maskelement>
+         <varbind>
+             <vbnumber>3</vbnumber>
+             <vbvalue>1</vbvalue>
+         </varbind>
+      </mask>
+      <uei>uei.opennms.org/traps/example_trap_definition_RAISE</uei>
+      <event-label>example trap definition 1 RAISE</event-label>
+      <descr>example trap definition 1 RAISE varbind1=%parm[#1]% varbind2= %parm[#2]% varbind3= %parm[#3]%
+      </descr>
+      <logmsg dest="logndisplay">example trap definition 1 RAISE varbind1=%parm[#1]% varbind2= %parm[#2]% varfbind3= %parm[#3]%
+      </logmsg>
+      <severity>Warning</severity>
+      <alarm-data reduction-key="%uei%:%dpname%:%nodeid%" alarm-type="1" auto-clean="false"/>
+   </event>
+   <event>
+      <mask>
+         <maskelement>
+            <mename>id</mename>
+            <mevalue>.1.3.6.1.4.1.52330.6.2</mevalue>
+         </maskelement>
+         <maskelement>
+            <mename>generic</mename>
+            <mevalue>6</mevalue>
+         </maskelement>
+         <maskelement>
+            <mename>specific</mename>
+            <mevalue>1</mevalue>
+         </maskelement>
+         <varbind>
+             <vbnumber>3</vbnumber>
+             <vbvalue>0</vbvalue>
+         </varbind>
+      </mask>
+      <uei>uei.opennms.org/traps/example_trap_definition_CLEAR</uei>
+      <event-label>example trap definition 1 CLEAR</event-label>
+      <descr>example trap definition 1 varbind1=%parm[#1]% varbind2= %parm[#2]% varfbind3= %parm[#3]%
+      </descr>
+      <logmsg dest="logndisplay">example trap definition 1 CLEAR varbind1=%parm[#1]% varbind2= %parm[#2]% varfbind3= %parm[#3]%
+      </logmsg>
+      <severity>Normal</severity>
+      <alarm-data reduction-key="%uei%:%dpname%:%nodeid%"
+                  alarm-type="2"
+                  clear-key="uei.opennms.org/traps/example_trap_definition_RAISE:%dpname%:%nodeid%"
+                  auto-clean="false"/>
+   </event>
+
+   <!-- Custom event configs go here -->
+   <event-file>events/opennms.snmp.trap.translator.events.xml</event-file>
+   ... 
+```
+Save eventconf.xml and exit the editor.
+
+There is a pearl command in the `bin` directory to directly send events into OpenNMS.
+We can use this to send an event into OpenNMS to force a reload the new event configuration without restarting OpenNMS.
+
+```
+bin/send-event.pl uei.opennms.org/internal/reloadDaemonConfig -p 'daemonName Eventd'
+```
+
+Perl is not installed in opennms containers but curl can be used instead (substitute --user username:password as appropriate)
+
+```
+curl -X POST http://localhost:8980/opennms/rest/events -H 'Content-Type: application/json' -d '{"uei": "uei.opennms.org/internal/reloadDaemonConfig", "severity": "NORMAL", "parms": [{"parmName": "daemonName", "value": "Eventd" }] }' --user admin:admin
+```
+It is also possible to reload the `Eventd` daemon from the `Karaf Shell` using:
+```
+docker compose exec horizon bash   # to run ssh consol if you dont have SSH on your windows machine
+
+ssh admin@localhost -o UserKnownHostsFile=/dev/null -p 8101 reload-daemon Eventd
+```
+
+You will see a reloadDaemonConfigSuccessful event in the event list
+
+Using the mib browser or netsnmp, try sending the traps you previously sent and see how they are now presented in the event list.
 
 ```
 # log into the netsnmp_1_1 container
 
 docker compose exec netsnmp_1_1 bash
 
-# ping horizon to ensure you can reach it from the container
-[root@netsnmp_1_1 /]# ping horizon
-PING horizon (172.20.0.15) 56(84) bytes of data.
-64 bytes from horizon.minimal-minion-activemq_N000 (172.20.0.15): icmp_seq=1 ttl=64 time=1.48 ms
-
-# send a RAISE trap to meridian port 1162 using netsnmp
+# send an example trap definition 1 RAISE trap to horizon port 1162 using netsnmp
 
 snmptrap -v 2c -c public horizon:1162 ""  .1.3.6.1.4.1.52330.6.2.0.1        .1.3.6.1.4.1.52330.6.2.7.0  s xxxx   .1.3.6.1.4.1.52330.6.2.1.0 i 0  .1.3.6.1.4.1.52330.6.2.5.0 i 1
 
-# send a CLEAR trap to horizon port 1162 using netsnmp
+# send an example trap definition 1 CLEAR trap to horizon port 1162 using netsnmp
 
 snmptrap -v 2c -c public horizon:1162 ""  .1.3.6.1.4.1.52330.6.2.0.1        .1.3.6.1.4.1.52330.6.2.7.0  s xxxx   .1.3.6.1.4.1.52330.6.2.1.0 i 0  .1.3.6.1.4.1.52330.6.2.5.0 i 0
 
 ```
+You will see corresponding WARNING and NORMAL events on the event list
 
-We will create an event configuration to match against our new trap in [Exercise-3-3](../session3/Exercise-3-3.md)
+You will also see a corresponding WARNING alarm with an event count of each raise trap sent and a CLEARED alarm if the clear event is sent.
 
+![alt text](../session3/images/reloadEvents.png "Figure reloadEvents.png")
 
+## how does the event definition work
+
+We have created an event configuration for two events which also create and clear an alarm.
+
+All events defined in OpenNMS must have a unique identifier called the `<uei>`
+
+The event definitions contain a `<mask>` element which you can see match the suggested trap masks in the original unformatted events. 
+
+The event definitions can also also contain one or more `<varbind>` elements which define the sequential number of the varbind and the corresponding varbind value to match. 
+Remember, OpenNMS ignores the OID of the varbind but uses the `<vbnumber>` order in which the varbind is declared. 
+
+```
+         <varbind>
+             <vbnumber>3</vbnumber>
+             <vbvalue>0</vbvalue>
+         </varbind>
+```
+
+The `<descr>` and `<logmsg>` fields contain the human readable text for the event.
+The varbinds can be included in this text using the excape sequence `%parm[#3]%` where `#3` indicates the third param (or varbind).
+HTML escape sequences can also be included in the text but because the event file is in XML, we need to use html character codes for reserved characters such as `&lt;` for `<` characters.
+
+The `<severity>` field can have the values (corresponding to standard ITU X733 definitions)
+
+|Severity   |                                                         |
+|-----------|---------------------------------------------------------|
+| Critical  | Numerous devices are impacted by an event. |
+| Major     | A device is down, or in danger of going down. |
+| Minor     | A part of a device (service, interface, power supply, and so on) has stopped functioning. |
+| Warning   | An event has occurred that may require action.|
+| Normal    | Informational severity message; no action is required. |
+| Cleared   | Indicates that an alarm with a self-clearing error condition has been corrected, and service is restored.|
+| Indeterminate | No severity could be associated with the event. |
+
+## how does the alarm definition work
+
+You will see that the `example trap definition 1 RAISE` event also contains an `<alarm-data>` element.
+```
+      <uei>uei.opennms.org/traps/example_trap_definition_RAISE</uei>
+      <severity>Warning</severity>
+      <alarm-data reduction-key="%uei%:%dpname%:%nodeid%" alarm-type="1" auto-clean="false"/>
+```
+
+Event definitions which RAISE alarms are defined as alarm-type="1"
+
+The `reduction-key` is designed to match the unique instance of this alarm.
+This matches the alarms UEI and also the distribted poller name  - which broadly corresponds to the minion or core instance receiving the trap and the nodeid which is the unique identifier of the node. 
+Whenever a trap matching the mask and varbinds is first received, a new alarm is created.
+Subsequent matching taps will just increase the event count on the alarm but will not create a new alarm.
+
+You will see that the `example trap definition 1 CLEAR` event  contains a more complex  `<alarm-data>` element.
+
+```
+      <uei>uei.opennms.org/traps/example_trap_definition_CLEAR</uei>
+      <event-label>example trap definition 1 CLEAR</event-label>
+      <alarm-data reduction-key="%uei%:%dpname%:%nodeid%"
+                  alarm-type="2"
+                  clear-key="uei.opennms.org/traps/example_trap_definition_RAISE:%dpname%:%nodeid%"
+                  auto-clean="false"/>
+```
+
+Event definitions which CLEAR alarms are defined as alarm-type="2" and also include a `clear-key` which you will see is designed to match the reduction-key of the event which initially raised the alarm.
+
+When an alarm-type="2" event is received, the corresponding alarm is cleared and eventually within a few minutes removed from the alarm list.
+
+Note that a subtle change in alarm behaviour can be set by overriding properties in the [etc/opennms.properties](../../main/pristine-opennms-config-files/etc-pristine/opennms.properties)  file.
+
+```
+###### Alarmd Properties ######
+#
+# Enable this property to force Alarmd to create new alarms when an problem re-occurs and the
+# existing Alarm is in a "Cleared" state.
+#
+# Default: false
+#org.opennms.alarmd.newIfClearedAlarmExists = false
+```
+Setting this property true will always ensure that a new alarm is created for a raise event if a previous instance has cleared. 
+
+We can also change how alarms are displayed and generate a sound on alarm updates
+
+```
+###### Alarm List Page Options ######
+# Several options are available to change the default behaviour of the Alarm List Page.
+# <opennms url>/opennms/alarm/list.htm 
+#
+# The alarm list page has the ability to generate a sound either on each new alarm
+# or (more annoyingly) on each change to an alarm event count on the page.
+#  
+# Turn on the sound feature. Set true and Alarm List Pages can generate sounds in the web browser.
+# opennms.alarmlist.sound.enable=false
+#
+# Set the default setting for how the Alarm List Pages generates sounds. The default setting can be 
+# modified by users for the duration of their logged-in session using a drop down menu . 
+#    off = no sounds generated by the page.
+#    newalarm = sounds generated for every new alarm in the page
+#    newalarmcount = sounds generated for every increase in alarm event count for alarms on the page
+#
+# opennms.alarmlist.sound.status=off
+
+# By default the alarm list page displays acknowledged and unacknowledged alarms in separate search tabs
+# Some users have asked to be able to see both on the same page. This option allows the alarm list page 
+# to display acknowleged and unacknowledged alarms on the same list but unacknowledged alarms
+# flash until they are acknowledged.
+#
+# opennms.alarmlist.unackflash=false
+
+```
+
+## Summary
+You can see that an important part of designing an event configuration is deciding which events raise alarms and which events clear them.
+
+There are many more options than we have covered for alarm and event definitions. 
+A good source of information is the [alarm and event documentation](https://docs.opennms.com/horizon/33/operation/deep-dive/alarms/configuring-alarms.html)
+
+But also looking at the [share/xsds/eventconf.xsd](../../main/pristine-opennms-config-files/xsds/eventconf.xsd) can also reveal more options.
+
+We will look a real alarm definition exercise in much more detail in the `More complex case study example` in [Session3 More complex case study example (Camera example)](../session3#more-complex-case-study-example)
 
 

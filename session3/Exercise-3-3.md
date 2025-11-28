@@ -1,291 +1,262 @@
-
 [Main Menu](../README.md) | [Session 3](../session3/README.md) | [Exercise-3-3](../session3/Exercise-3-3.md)
 
-# Exercise 3-3 OpenNMS Event Configuration
+# Exercise 3-3 More complex case study example
 
-### OpenNMS Event Configuration
+## Introduction
 
-The top level OpenNMS event configuration file is [etc/eventconf.xml](../../main/pristine-opennms-config-files/etc-pristine/eventconf.xml).
-This can contain its own event configurations but can also reference a list of event configuration files in the [etc/events](../../main/pristine-opennms-config-files/etc-pristine/events) folder.
+In the last section we saw how to create an event and alarm using an unformatted OpenNMS event from an unknown trap.
+In this section we will attempt a worked example using a manufactures published SNMP MIBS.
 
-You will see that the [etc/events](../../main/pristine-opennms-config-files/etc-pristine/events) folder contains event definition files for the SNMP traps from many vendors with the vendor's prefixing the name of the event definition file.
+![alt text](../session3/images/MotorwayCamera.jpg "Figure MotorwayCamera.jpg")
 
-It also contains a number of definitions for events generated internally by OpenNMS.
-These event files are usually named with `opennms` as the file name prefix.
-For example [opennms.internal.events.xml](../../main/pristine-opennms-config-files/etc-pristine/events/opennms.internal.events.xml)
+Road side cameras are used to provide surveillance for [smart motorways](https://www.highwaysmagazine.co.uk/chubb-launches-new-camera-system-for-smart-motorways/6703) and CHUBB, who manufacture these cameras, have published a MIB for camera event traps sent from each of their cameras. 
+In this example we will import this MIB into OpenNMS and create camera alarms.
 
-The order in which the event definition files are referenced in [etc/eventconf.xml](../../main/pristine-opennms-config-files/etc-pristine/eventconf.xml) is important.
-The first matching event definition found when interpreting an event will always be used. 
+**_NOTE:_** Disclaimer: This exercise is provided as a training example. The CHUBB MIBs used may not be the latest specified by the manufacturer.
 
-For this reason, the last file in the list is always [etc/events/opennms.catch-all.events.xml](../../main/pristine-opennms-config-files/etc-pristine/events/opennms.catch-all.events.xml) because this defines the event definition we have already seen for a completely unknown trap.
+[Session 3 Video](https://youtu.be/8rpTFEEIDs8) (DEPRICATED - to be updated to match new material)
 
-Normally, we wouldn't want to alter a configuration directly inside a container because we will loose this configuration when the container re-starts.
-However as an experiment, we are going to directly modify the eventconf.xml inside our container to include a definition for this new trap.
+## Getting started
+In this example we will use the same network as we used in [Session 2](../session2/README.md). 
 
----
-**NOTE**
-Note that this exercise could also be performed using the file editing ui covered in [Session 2 modifying configuration files through the ui](../session2/README.md#modifying-configuration-files-through-the-ui)  
-However remember to reload the configuration as described below after editing it.
+However we want to start with a clean system because instead of creating the configuration files inside the container, we will inject them using docker. 
 
----
+Use the new [session3/minimal-minion-activemq](../session3/minimal-minion-activemq/) project.
 
-The OpenNMS containers already have the [vi editor](https://devhints.io/vim) installed and you can use this if you wish.
-
-However we can make our lives a bit simpler if we also install the [nano editor](https://www.nano-editor.org/dist/latest/nano.html) because it is easier to use.
-
-(Note you may also need to change the background colour of the powershell to black to see all of the characters when editing xml markup. Use `Powershell>properties>colors>screen background`)
+(Note you should be copying this session into your myPracticeCourseWork folder if you want to keep a forked copy of your work). 
 
 ```
-# log into the opennms horizon container as the root user
-docker compose exec -u root horizon bash
+# make sure the old database and configuration is gone by deleting the volumes using the -v option
+cd minimal-minion-activemq
+docker compose down -v
 
-# install nano 
-root@horizon:/usr/share/opennms# microdnf -y install nano
+# restart opennms
+docker compose up -d
 
-# exit as root user 
-root@horizon:/usr/share/opennms# exit
+# follow the logs until OpennMS is up.
+# this will take a while because we are recreating the database
+docker compose logs -f horizon
 
-```
-Now we can use nano to edit our configuration
+# OpenNMS will be up around the time when you see the logs pass the following lines
+horizon  | [INFO] Invoking start on object OpenNMS:Name=PerspectivePoller
+horizon  | [INFO] Invocation start successful for MBean OpenNMS:Name=PerspectivePoller
 
-```
-# log into the opennms horizon container as the normal user
-docker compose exec horizon bash
-
-# edit the eventconf.xml file
-nano etc/eventconf.xml
-```
-You can now paste the following event definitions into the file between the end of the `</global>` definition and the first `<event-file>` in the list
+# Ctrl-c to exit
 
 ```
-   ...
-   </global>
+Once OpenNMS is running, open a session at http:\\localhost:8980 (username: admin password: admin)
 
-   <event>
-      <mask>
-         <maskelement>
-            <mename>id</mename>
-            <mevalue>.1.3.6.1.4.1.52330.6.2</mevalue>
-         </maskelement>
-         <maskelement>
-            <mename>generic</mename>
-            <mevalue>6</mevalue>
-         </maskelement>
-         <maskelement>
-            <mename>specific</mename>
-            <mevalue>1</mevalue>
-         </maskelement>
-         <varbind>
-             <vbnumber>3</vbnumber>
-             <vbvalue>1</vbvalue>
-         </varbind>
-      </mask>
-      <uei>uei.opennms.org/traps/example_trap_definition_RAISE</uei>
-      <event-label>example trap definition 1 RAISE</event-label>
-      <descr>example trap definition 1 RAISE varbind1=%parm[#1]% varbind2= %parm[#2]% varbind3= %parm[#3]%
-      </descr>
-      <logmsg dest="logndisplay">example trap definition 1 RAISE varbind1=%parm[#1]% varbind2= %parm[#2]% varfbind3= %parm[#3]%
-      </logmsg>
-      <severity>Warning</severity>
-      <alarm-data reduction-key="%uei%:%dpname%:%nodeid%" alarm-type="1" auto-clean="false"/>
-   </event>
-   <event>
-      <mask>
-         <maskelement>
-            <mename>id</mename>
-            <mevalue>.1.3.6.1.4.1.52330.6.2</mevalue>
-         </maskelement>
-         <maskelement>
-            <mename>generic</mename>
-            <mevalue>6</mevalue>
-         </maskelement>
-         <maskelement>
-            <mename>specific</mename>
-            <mevalue>1</mevalue>
-         </maskelement>
-         <varbind>
-             <vbnumber>3</vbnumber>
-             <vbvalue>0</vbvalue>
-         </varbind>
-      </mask>
-      <uei>uei.opennms.org/traps/example_trap_definition_CLEAR</uei>
-      <event-label>example trap definition 1 CLEAR</event-label>
-      <descr>example trap definition 1 varbind1=%parm[#1]% varbind2= %parm[#2]% varfbind3= %parm[#3]%
-      </descr>
-      <logmsg dest="logndisplay">example trap definition 1 CLEAR varbind1=%parm[#1]% varbind2= %parm[#2]% varfbind3= %parm[#3]%
-      </logmsg>
-      <severity>Normal</severity>
-      <alarm-data reduction-key="%uei%:%dpname%:%nodeid%"
-                  alarm-type="2"
-                  clear-key="uei.opennms.org/traps/example_trap_definition_RAISE:%dpname%:%nodeid%"
-                  auto-clean="false"/>
-   </event>
+The provided [test-network1-requisition](../minimal-minion-activemq/container-fs/horizon/opt/opennms-overlay/etc/imports/test-network1-requisition.xml) now has two cameras in different subnets.
 
-   <!-- Custom event configs go here -->
-   <event-file>events/opennms.snmp.trap.translator.events.xml</event-file>
-   ... 
-```
-Save eventconf.xml and exit the editor.
+| container | Native SNMP port | Host Exposed SNMP Port | internal ip address | node label | foreign id | location (minion) |
+| --------- | ---------------- | ---------------------- | ------------------- | ---------- | ---------- | ----------------- |
+| chubb_camera_01 | 161        | 11561                  | 172.20.0.103        | chubb_camera_01 | chubb_camera_01 | Default |
+| chubb_camera_02 | 161        | 11661                  | 172.20.2.103        | chubb_camera_02 | chubb_camera_02 | minion1-location |
 
-There is a pearl command in the `bin` directory to directly send events into OpenNMS.
-We can use this to send an event into OpenNMS to force a reload the new event configuration without restarting OpenNMS.
+You will need to import the test-network1-requisition and add the `chubb` snmp community string for chubb_camera_02 and chubb_camera_02 as covered in [Exercise-2-1](../session2/Exercise-2-1.md)
+
+You should now have the full test network including the cameras ready for you to design the configuration.
+
+Log into both cameras and check you can walk the mib locally
 
 ```
-bin/send-event.pl uei.opennms.org/internal/reloadDaemonConfig -p 'daemonName Eventd'
+docker compose exec chubb_camera_01 bash
+
+# check that snmpsim is working when you walk the MIB
+ snmpwalk -v 2c -On -c chubb localhost
+.1.3.6.1.2.1.1.1.0 = STRING: M1 (TUNNEL) 0/2L
+.1.3.6.1.2.1.1.2.0 = OID: .1.3.6.1.4.1.52330.1.6
+.1.3.6.1.2.1.1.3.0 = Timeticks: (404669) 1:07:26.69
+.1.3.6.1.2.1.1.4.0 = STRING: Highways England - 03001235000
+.1.3.6.1.2.1.1.5.0 = STRING: 00021,20002
+.1.3.6.1.2.1.1.6.0 = STRING: 0002L
 ```
 
-Perl is not installed in opennms containers but curl can be used instead (substitute --user username:password as appropriate)
+Ping horizon to make sure you can see it.
 
 ```
-curl -X POST http://localhost:8980/opennms/rest/events -H 'Content-Type: application/json' -d '{"uei": "uei.opennms.org/internal/reloadDaemonConfig", "severity": "NORMAL", "parms": [{"parmName": "daemonName", "value": "Eventd" }] }' --user admin:admin
-```
-It is also possible to reload the `Eventd` daemon from the `Karaf Shell` using:
-```
-docker compose exec horizon bash   # to run ssh consol if you dont have SSH on your windows machine
-
-ssh admin@localhost -o UserKnownHostsFile=/dev/null -p 8101 reload-daemon Eventd
+ping horizon
 ```
 
-You will see a reloadDaemonConfigSuccessful event in the event list
-
-Using the mib browser or netsnmp, try sending the traps you previously sent and see how they are now presented in the event list.
-
-```
-# log into the netsnmp_1_1 container
-
-docker compose exec netsnmp_1_1 bash
-
-# send an example trap definition 1 RAISE trap to horizon port 1162 using netsnmp
-
-snmptrap -v 2c -c public horizon:1162 ""  .1.3.6.1.4.1.52330.6.2.0.1        .1.3.6.1.4.1.52330.6.2.7.0  s xxxx   .1.3.6.1.4.1.52330.6.2.1.0 i 0  .1.3.6.1.4.1.52330.6.2.5.0 i 1
-
-# send an example trap definition 1 CLEAR trap to horizon port 1162 using netsnmp
-
-snmptrap -v 2c -c public horizon:1162 ""  .1.3.6.1.4.1.52330.6.2.0.1        .1.3.6.1.4.1.52330.6.2.7.0  s xxxx   .1.3.6.1.4.1.52330.6.2.1.0 i 0  .1.3.6.1.4.1.52330.6.2.5.0 i 0
+Try sending the following trap from chubb_camera_01 to horizon using netsnmp.
+You should see an unformatted event from chubb_camera_01 in the OpenNMS event list.
 
 ```
-You will see corresponding WARNING and NORMAL events on the event list
-
-You will also see a corresponding WARNING alarm with an event count of each raise trap sent and a CLEARED alarm if the clear event is sent.
-
-![alt text](../session3/images/reloadEvents.png "Figure reloadEvents.png")
-
-## how does the event definition work
-
-We have created an event configuration for two events which also create and clear an alarm.
-
-All events defined in OpenNMS must have a unique identifier called the `<uei>`
-
-The event definitions contain a `<mask>` element which you can see match the suggested trap masks in the original unformatted events. 
-
-The event definitions can also also contain one or more `<varbind>` elements which define the sequential number of the varbind and the corresponding varbind value to match. 
-Remember, OpenNMS ignores the OID of the varbind but uses the `<vbnumber>` order in which the varbind is declared. 
+# send a trap to horizon
+snmptrap -v 2c -c public horizon:1162 ""  .1.3.6.1.4.1.52330.6.2.0.1    .1.3.6.1.4.1.52330.6.2.1.0 i 0  .1.3.6.1.4.1.52330.6.2.5.0 i 1
+```
+Do the same for chubb_camera_02 but this time send the trap to minion1
 
 ```
-         <varbind>
-             <vbnumber>3</vbnumber>
-             <vbvalue>0</vbvalue>
-         </varbind>
+docker compose exec chubb_camera_02 bash
+
+ping minion1
+
+# send a trap to minion1
+
+snmptrap -v 2c -c public minion1:1162 ""  .1.3.6.1.4.1.52330.6.2.0.1    .1.3.6.1.4.1.52330.6.2.1.0 i 0  .1.3.6.1.4.1.52330.6.2.5.0 i 1
 ```
 
-The `<descr>` and `<logmsg>` fields contain the human readable text for the event.
-The varbinds can be included in this text using the excape sequence `%parm[#3]%` where `#3` indicates the third param (or varbind).
-HTML escape sequences can also be included in the text but because the event file is in XML, we need to use html character codes for reserved characters such as `&lt;` for `<` characters.
+If you are receiving unformatted events in OpenNMS, your connectivity is working fine and we are ready to format the traps.
 
-The `<severity>` field can have the values (corresponding to standard ITU X733 definitions)
+## Parsing a MIB
 
-|Severity   |                                                         |
-|-----------|---------------------------------------------------------|
-| Critical  | Numerous devices are impacted by an event. |
-| Major     | A device is down, or in danger of going down. |
-| Minor     | A part of a device (service, interface, power supply, and so on) has stopped functioning. |
-| Warning   | An event has occurred that may require action.|
-| Normal    | Informational severity message; no action is required. |
-| Cleared   | Indicates that an alarm with a self-clearing error condition has been corrected, and service is restored.|
-| Indeterminate | No severity could be associated with the event. |
+OpenNMS provides a web based tool to read SNMP mibs and generate configurations. 
+The Web UI is functional but a bit limited in scope within a container so we will be better off generating the configuration files from the UI and then copying them outside the container for editing.
 
-## how does the alarm definition work
+To open the Mib compiler go to the Admin Page (Cogs) ![alt text](../session3/images/cogs.png "Figure cogs.png") and select Additional Tools > SNMP MIB Compiler.
 
-You will see that the `example trap definition 1 RAISE` event also contains an `<alarm-data>` element.
-```
-      <uei>uei.opennms.org/traps/example_trap_definition_RAISE</uei>
-      <severity>Warning</severity>
-      <alarm-data reduction-key="%uei%:%dpname%:%nodeid%" alarm-type="1" auto-clean="false"/>
-```
+![alt text](../session3/images/provisioning-mib.png "Figure provisioning-mib.png")
 
-Event definitions which RAISE alarms are defined as alarm-type="1"
+This will open the MIB compiler.
 
-The `reduction-key` is designed to match the unique instance of this alarm.
-This matches the alarms UEI and also the distribted poller name  - which broadly corresponds to the minion or core instance receiving the trap and the nodeid which is the unique identifier of the node. 
-Whenever a trap matching the mask and varbinds is first received, a new alarm is created.
-Subsequent matching taps will just increase the event count on the alarm but will not create a new alarm.
+You can see there is a button labelled `Upload MIB` which allows us to upload any mib files into OpenNMS for processing
 
-You will see that the `example trap definition 1 CLEAR` event  contains a more complex  `<alarm-data>` element.
+All of the MIB files we will need are in the following folder in your checked out project:
+
+[session3/minimal-minion-activemq/container-fs/snmpsim/mibs](../session3/minimal-minion-activemq/container-fs/snmpsim/mibs)
+
+The MIB file we will need to create our configuration is [CHUBB-TVBS-CAMERA.mib](../session3/minimal-minion-activemq/container-fs/snmpsim/mibs/CHUBB-TVBS-CAMERA.mib). 
+
+Upload this file and right click on it and select `compile`.
+
+
+![alt text](../session3/images/mibcompiler1-error.png "Figure mibcompiler1-error.png")
+
+You will get the following error: `[ERROR] Dependencies required: <b>[CHUBB-ROOT, SNMPv2-CONF, SNMPv2-SMI]</b>`
+
+If you examine the MIB file you will see that it requires definitions taken from other MIB files (CHUBB-ROOT, SNMPv2-CONF, SNMPv2-SMI).
 
 ```
-      <uei>uei.opennms.org/traps/example_trap_definition_CLEAR</uei>
-      <event-label>example trap definition 1 CLEAR</event-label>
-      <alarm-data reduction-key="%uei%:%dpname%:%nodeid%"
-                  alarm-type="2"
-                  clear-key="uei.opennms.org/traps/example_trap_definition_RAISE:%dpname%:%nodeid%"
-                  auto-clean="false"/>
+CHUBB-TVBS-CAMERA-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+    chubb, products
+        FROM CHUBB-ROOT
+    MODULE-COMPLIANCE, NOTIFICATION-GROUP, OBJECT-GROUP
+        FROM SNMPv2-CONF            -- RFC 2580
+    Integer32, Unsigned32, MODULE-IDENTITY, NOTIFICATION-TYPE, OBJECT-TYPE
+        FROM SNMPv2-SMI;            -- RFC 2578
+
+...
 ```
 
-Event definitions which CLEAR alarms are defined as alarm-type="2" and also include a `clear-key` which you will see is designed to match the reduction-key of the event which initially raised the alarm.
+So in order to use this MIB we must import and compile its dependencies first and since each of the dependencies also requires other MIB files, you may have a bit of trial and error to upload and compile the files in the correct order.
 
-When an alarm-type="2" event is received, the corresponding alarm is cleared and eventually within a few minutes removed from the alarm list.
+All of the dependencies are also in the folder [session3/minimal-minion-activemq/container-fs/snmpsim/mibs](../session3/minimal-minion-activemq/container-fs/snmpsim/mibs)
 
-Note that a subtle change in alarm behaviour can be set by overriding properties in the [etc/opennms.properties](../../main/pristine-opennms-config-files/etc-pristine/opennms.properties)  file.
+Once you have upload and compiled all of the files, you will be in a position to generate the event definitions by right clicking on the `CHUBB-TVBS-CAMERA-MIB.mib` file and selecting `generate events` as shown in the image below.
 
-```
-###### Alarmd Properties ######
-#
-# Enable this property to force Alarmd to create new alarms when an problem re-occurs and the
-# existing Alarm is in a "Cleared" state.
-#
-# Default: false
-#org.opennms.alarmd.newIfClearedAlarmExists = false
-```
-Setting this property true will always ensure that a new alarm is created for a raise event if a previous instance has cleared. 
+![alt text](../session3/images/generateEvents.png "Figure generateEvents.png")
 
-We can also change how alarms are displayed and generate a sound on alarm updates
+We will keep the default base UEI definition as `uei.opennms.org/traps/CHUBB-TVBS-CAMERA-MIB`
+
+The trap definitions in the camera mib will be converted into 4 new OpenNMS events ;
+
+![alt text](../session3/images/GeneratedEvents1.png "Figure GeneratedEvents1.png")
+
+If you select `save event file`, you will see from the log that a new event definition file has been created `CHUBB-TVBS-CAMERA-MIB.events.xml` containing 4 event definitions and that a reference to this file has been placed in the `eventconf.xml` file
 
 ```
-###### Alarm List Page Options ######
-# Several options are available to change the default behaviour of the Alarm List Page.
-# <opennms url>/opennms/alarm/list.htm 
-#
-# The alarm list page has the ability to generate a sound either on each new alarm
-# or (more annoyingly) on each change to an alarm event count on the page.
-#  
-# Turn on the sound feature. Set true and Alarm List Pages can generate sounds in the web browser.
-# opennms.alarmlist.sound.enable=false
-#
-# Set the default setting for how the Alarm List Pages generates sounds. The default setting can be 
-# modified by users for the duration of their logged-in session using a drop down menu . 
-#    off = no sounds generated by the page.
-#    newalarm = sounds generated for every new alarm in the page
-#    newalarmcount = sounds generated for every increase in alarm event count for alarms on the page
-#
-# opennms.alarmlist.sound.status=off
-
-# By default the alarm list page displays acknowledged and unacknowledged alarms in separate search tabs
-# Some users have asked to be able to see both on the same page. This option allows the alarm list page 
-# to display acknowleged and unacknowledged alarms on the same list but unacknowledged alarms
-# flash until they are acknowledged.
-#
-# opennms.alarmlist.unackflash=false
-
+2024-02-12T16:29:00-05:00 [DEBUG] Normalizing event uei.opennms.org/traps/CHUBB-TVBS-CAMERA-MIB/healthChange
+2024-02-12T16:29:00-05:00 [DEBUG] Normalizing event uei.opennms.org/traps/CHUBB-TVBS-CAMERA-MIB/tamperDetected
+2024-02-12T16:29:00-05:00 [DEBUG] Normalizing event uei.opennms.org/traps/CHUBB-TVBS-CAMERA-MIB/logicInputChange
+2024-02-12T16:29:00-05:00 [DEBUG] Normalizing event uei.opennms.org/traps/CHUBB-TVBS-CAMERA-MIB/commsStateChange
+2024-02-12T16:29:00-05:00 [INFO] Saving XML data into /usr/share/opennms/etc/events/CHUBB-TVBS-CAMERA-MIB.events.xml
+2024-02-12T16:29:00-05:00 [INFO] Adding a reference to events/CHUBB-TVBS-CAMERA-MIB.events.xml inside eventconf.xml.
+2024-02-12T16:29:00-05:00 [INFO] Saving XML data into /usr/share/opennms/etc/eventconf.xml
+2024-02-12T16:29:00-05:00 [INFO] The event's configuration reload operation is being performed.
 ```
 
-## Summary
-You can see that an important part of designing an event configuration is deciding which events raise alarms and which events clear them.
+## Testing the parsed mib events
 
-There are many more options than we have covered for alarm and event definitions. 
-A good source of information is the [alarm and event documentation](https://docs.opennms.com/horizon/33/operation/deep-dive/alarms/configuring-alarms.html)
+You will see from the log messages that OpenNMS has modified `eventconf.xml` and added the new file `CHUBB-TVBS-CAMERA-MIB.events.xml` inside the container.
 
-But also looking at the [share/xsds/eventconf.xsd](../../main/pristine-opennms-config-files/xsds/eventconf.xsd) can also reveal more options.
+OpenNMS should now be able to process the trap we sent previously from the chubb_camera_01.
+Try sending the trap again.
 
-We will look a real alarm definition exercise in much more detail in the `More complex case study example` in [Session3 More complex case study example (Camera example)](../session3#more-complex-case-study-example)
+```
+docker compose exec chubb_camera_01 bash
 
+snmptrap -v 2c -c public horizon:1162 ""  .1.3.6.1.4.1.52330.6.2.0.1    .1.3.6.1.4.1.52330.6.2.1.0 i 0  .1.3.6.1.4.1.52330.6.2.5.0 i 1
+```
 
+You should now see new events being generated in the OpenNMS event list.
+The event is no longer an unrecognised event but is an event defined from the CHUBB mib.
+
+![alt text](../session3/images/chubb-basic-events.png "Figure chubb-basic-events.png")
+
+The trap we sent was a healthChange trap OID `.1.3.6.1.4.1.52330.6.2.0.1` with two varbinds; healthChangeReason `.1.3.6.1.4.1.52330.6.2.1.0`  and faultState `.1.3.6.1.4.1.52330.6.2.5.0`.
+
+The `healthChangeReason` can have one of twelve values corresponding to the nature of the fault:
+
+* panMotor(0) tiltMotor(1) zoomMotor(2) apertureMotor(3) focusMotor(4) wiperMotor(5) heater(6) fluidLevel(7) videoSignal(8) housingTamper(9) washerMotorFault(10) configPlugFault(11) tvbuCameraCommsFault(12) 
+
+and the faultState can have one of two values:
+
+* clear(0) triggered(1).
+
+So we can see that even though we only have one `healthChange` trap definition, it can correspond to the raising or clearing of up to twelve different independent problems which can occur in any combination in the camera.
+
+You will also see that all the generated events still have an `Indeterminate` severity. 
+We have no idea from the event whether a `washerMotorFault` is more or less critical to deal with than a `videoSignal` fault.
+
+## Creating more useful Event and Alarm Definitions
+
+We are now going to turn the event definitions generated from the mib into a more useful configuration which generates alarms with different severities.
+
+### create an overlay configuration in docker compose
+
+First, we need to extract the two event files we have generated inside the container so that we can modify and re-inject them as an overlay to the container.
+
+We can copy the files from inside the container into the local project directory using the docker compose `cp` command
+
+```
+docker compose cp horizon:/usr/share/opennms/etc/events/CHUBB-TVBS-CAMERA-MIB.events.xml .
+docker compose cp horizon:/usr/share/opennms/etc/eventconf.xml .
+```
+This will copy the files into the root of your docker compose project for you to work with.
+
+**_NOTE:_** Example copies of these raw files are also provided in the [session3/minimal-minion-activemq/example-configurations/events-generated-from-mib](../session3/minimal-minion-activemq/example-configurations/events-generated-from-mib) folder.
+
+Now place the copied `eventconf.xml` file in the [session3/minimal-minion-activemq/container-fs/horizon/opt/opennms-overlay/etc](../session3/minimal-minion-activemq/container-fs/horizon/opt/opennms-overlay/etc) folder.
+
+And place the `CHUBB-TVBS-CAMERA-MIB.events.xml` file in the [session3/minimal-minion-activemq/container-fs/horizon/opt/opennms-overlay/etc/events](../session3/minimal-minion-activemq/container-fs/horizon/opt/opennms-overlay/etc/events) folder.
+
+(Remember you should be using your copy of the exercise in [/opennms-tutorials-1/myPracticeCourseWork](../../main/myPracticeCourseWork/) )
+
+Going forwards, as you edit these files, you can test them in the running OpenNMS system.
+
+One way to do this is just to restart the docker compose project and the files will be injected.
+
+```
+# restart opennms (don`t use -v or you will wait for the database to initialise)
+cd minimal-minion-activemq
+docker compose down
+docker compose up -d
+```
+OpenNMS will fail to start if there is a syntax error in the files, but you can check the problem by looking at the startup logs.
+
+A faster approach with a running system is just to copy the files into the running container's opennms/etc directory and send an event to OpenNMS which will force a reload of eventd. 
+To do this try;
+
+```
+cd minimal-minion-activemq
+docker compose cp ./container-fs/horizon/opt/opennms-overlay/etc/events/CHUBB-TVBS-CAMERA-MIB.events.xml horizon:/usr/share/opennms/etc/events/
+
+# and if eventconf.xml is not already modified
+docker compose cp ./container-fs/horizon/opt/opennms-overlay/etc/eventconf.xml horizon:/usr/share/opennms/etc/
+
+# send an event to reload the daemon (if perl is installed)
+docker compose exec horizon /usr/share/opennms/bin/send-event.pl uei.opennms.org/internal/reloadDaemonConfig -p 'daemonName Eventd' 
+```
+
+Note Perl is not installed by default in newer opennms containers but curl can be used instead (substitute --user username:password as appropriate and note the \" escape characters used in PowerShell)
+
+```
+docker compose exec horizon curl --user admin:admin -X POST http://localhost:8980/opennms/rest/events -H 'Content-Type: application/json' -d '{\"uei\": \"uei.opennms.org/internal/reloadDaemonConfig\", \"severity\": \"NORMAL\", \"parms\": [{\"parmName\": \"daemonName\", \"value\": \"Eventd\" }]}' 
+```
+
+This completes an exercise in generating the raw event configuration files.
+
+In [Exercise-3-4](../session3/Exercise-3-4.md) we will modify and test the event configuration to add alarms.
