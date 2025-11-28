@@ -191,8 +191,9 @@ The trap parameters are also called `varbinds` and each consists of the fields `
 
 (for other possible types see [NetSNMP snmpset documentation](http://www.net-snmp.org/wiki/index.php/TUT:snmpset) `i: INTEGER, u: unsigned INTEGER, t: TIMETICKS, a: IPADDRESS, o: OBJID, s: STRING, x: HEX STRING, d: DECIMAL STRING`).
 
-Although officially, the OID of each varbind must be defined in the trap, OpenNMS is not concerned with and doesn't use the varbind OID but only the POSITION of the varbind value. (i.e. is it the first, second or third value etc. in the sequence). 
-So in these examples, Provided a varbind OID is set, it doesn't matter what the OID value is as it is only the order of the varbinds which are important to OpenNMS.
+Although officially, the OID of each varbind must be defined in the trap, OpenNMS is not concerned with and doesn't use the varbind OID but only the POSITION of the varbind value. (i.e. is it the first, second or third value etc. in the sequence).
+
+So in these examples, provided a varbind OID is set, it doesn't matter what the OID value is as it is only the order of the varbinds which are important to OpenNMS.
 (Please note however that the `OpenNMS Event Translator` may care about the varbind OID but more on this later)
 
 The following breaks down the content of a trap to be sent using snmptrap:
