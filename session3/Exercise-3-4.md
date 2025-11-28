@@ -95,7 +95,7 @@ and
 
 ```
  
-Remember that the severity field can have the values  Critical, Major, Minor, Warning, Normal, Cleared, Indeterminate.
+Remember that the severity field can have the values  `Critical`, `Major`, `Minor`, `Warning`, `Normal`, `Cleared`, `Indeterminate`.
 You need to decide if the same severity applies to all triggering event traps.
 
 The restored state events should be set to `Normal`.
