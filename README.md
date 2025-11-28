@@ -45,18 +45,19 @@ Before doing anything else you will need to follow these getting started instruc
 
 Please see the [Prerequisites Video](https://www.youtube.com/watch?v=M-FuNBkso4M) to help you get started.
 
-All of these examples have been tried on Docker Desktop installed on Windows 11.
-
-They should also work on Docker installed in linux  (e.g. Ubuntu 22 running in VirtualBox).
-
 In order to complete these exercises you will need docker and docker-compose for the containerised exercises. 
 The easiest way to get these packages is to install [docker-desktop](https://www.docker.com/products/docker-desktop/) which is available for Windows, Mac or Linux machines. 
 
-For certain exercises you may also need Java Open JDK (minimum version 17), An IDE (such as Eclipse, Intelij or  VS-code. I use Eclipse), Maven and git installed on your machine. 
+All of these examples have been tried on [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed on Windows 11.
+They should also work on Docker installed in linux  (e.g. Ubuntu 22 running in VirtualBox).
+
+The following software is also needed:
 
 [Git for windows](https://git-scm.com/download/win)
 
-[Docker Desktop](https://www.docker.com/products/docker-desktop/)
+[Ireasoning Mib Browser](https://www.ireasoning.com/mibbrowser.shtml)
+
+For certain exercises you may also need Java Open JDK (minimum version 17), An IDE (such as Eclipse, Intelij or  VS-code. I use Eclipse) and Mave installed on your machine. 
 
 [Eclipse for Enterprise Java developers](https://www.eclipse.org/downloads/packages/release/2023-12/r/eclipse-ide-enterprise-java-and-web-developers)
 
