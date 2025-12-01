@@ -170,6 +170,9 @@ If you select `save event file`, you will see from the log that a new event defi
 
 You will see from the log messages that OpenNMS has modified `eventconf.xml` and added the new file `CHUBB-TVBS-CAMERA-MIB.events.xml` inside the container.
 
+The line `The event's configuration reload operation is being performed.` tells us that Eventd has been reloaded after the file changes. 
+Otherwise we would have to reload the event definitions using the methods discussed in the previous exercise.
+
 OpenNMS should now be able to process the trap we sent previously from the chubb_camera_01.
 Try sending the trap again.
 
