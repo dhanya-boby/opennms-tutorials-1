@@ -17,7 +17,7 @@ The answer in this case is to use the [event translator](https://docs.opennms.co
 
 ## Setup
 
-The cameras and camera controllers are defined in the [camera-locations.xml requisition](../session4/minimal-minion-activemq/container-fs/horizon/opt/opennms-overlay/etc/imports/camera-locations.xml).
+The cameras and camera controllers are defined in the [camera-locations.xml requisition](../session4/EventTranslator/minimal-minion-activemq/container-fs/horizon/opt/opennms-overlay/etc/imports/camera-locations.xml).
 
 You should import this requisition to define the cameras and `camera-controller` when you start OpenNMS.
 The cameras are named after the fashion; camera_001, camera_002 etc. 
@@ -33,21 +33,21 @@ The traps sent from the `camera-controller` follow exactly the same pattern as t
 
 Example traps are provided in [CAMERA-CONTROLLER Trap Examples](../session4/TrapExamplesCAMERA-CONTROLLER.md)
 
-These traps match the event configuration here [etc/events/CAMERA-CONTROLLER-MIB.events.xml](../session4/minimal-minion-activemq/container-fs/horizon/opt/opennms-overlay/etc/events/CAMERA-CONTROLLER-MIB.events.xml) 
+These traps match the event configuration here [etc/events/CAMERA-CONTROLLER-MIB.events.xml](../session4/EventTranslator/minimal-minion-activemq/container-fs/horizon/opt/opennms-overlay/etc/events/CAMERA-CONTROLLER-MIB.events.xml) 
 
-You need to design an event translator configuration which will translate the events from these new traps into the old events defined in [Exercise 3.1](../session3/Exercise-3-1.md) with the correct nodeid corresponding to the `cameraIdentifier` in the traps.
+You need to design an event translator configuration which will translate the events from these new traps into the old events defined in [Exercise 3.1](../session3/Exercise-3-1.md) but with the correct `nodeid` corresponding to the `cameraIdentifier` in the traps.
 
-A starting point is provided here [etc/translator-configuration.xml](../session4/minimal-minion-activemq/container-fs/horizon/opt/opennms-overlay/etc/translator-configuration.xml) 
+A starting point is provided here [etc/translator-configuration.xml](../session4/EventTranslator/minimal-minion-activemq/container-fs/horizon/opt/opennms-overlay/etc/translator-configuration.xml) 
 This is based upon the standard translations included with OpenNMS. 
 
 We need to translate each of the incoming events so that a new event is created with the correct node id. 
 To do this, the event translator must do a lookup in the database to find the correct node id based on it's node label matching the cameraId in the trap.
 
 You will see in the file there is already a configuration `Improved LinkDown/LinkUp events`  which looks up nodes using sql. 
-You need to do a similar event lookup for each of the events defined in [etc/events/CAMERA-CONTROLLER-MIB.events.xml](../session4/minimal-minion-activemq/container-fs/horizon/opt/opennms-overlay/etc/events/CAMERA-CONTROLLER-MIB.events.xml) 
+You need to do a similar event lookup for each of the events defined in [etc/events/CAMERA-CONTROLLER-MIB.events.xml](../session4/EventTranslator/minimal-minion-activemq/container-fs/horizon/opt/opennms-overlay/etc/events/CAMERA-CONTROLLER-MIB.events.xml) 
 
 A starting point is provided at the end of the file `Translations FOR CAMERA CONTROLLER EVENTS`. 
 Modify this to do a database lookup.
 
 You will find the answer here (but try the exercise first).
-[Exercise-4-2 Answer](../session4/Exercise4-2-answer.md)
+[Exercise-4-2 Answer](../session4/EventTranslator/Exercise4-2-answer.md)
