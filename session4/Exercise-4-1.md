@@ -21,7 +21,7 @@ Firstly, however, we will begin by examining the OpenNMS database.
 
 ## Viewing the OpenNMS database
 
-The [session4/minimal-minion-activemq](../session4/minimal-minion-activemq) docker compose project includes a docker image of the  [pgAdmin4](https://www.pgadmin.org/) Postgresql web maintenance tool.
+The [session4/EventTranslator/minimal-minion-activemq](../session4/EventTranslator/minimal-minion-activemq) docker compose project includes a docker image of the  [pgAdmin4](https://www.pgadmin.org/) Postgresql web maintenance tool.
 * https://github.com/pgadmin-org/pgadmin4
 * https://hub.docker.com/r/dpage/pgadmin4/
 
@@ -29,7 +29,7 @@ To examine the database, you will need to start the project and wait for OpenNMS
 (If the database does not exist or has been deleted, OpenNMS will recreate the `opennms` database in Postgresql before starting up).
 
 ```
-cd minimal-minion-activemq
+cd EventTranslator/minimal-minion-activemq
 docker compose up -d
 ```
 
@@ -92,7 +92,7 @@ You can browse through the other entities and matching tables but for our purpos
 | [OnmsEvent.java](https://github.com/OpenNMS/opennms/blob/opennms-33.1.6-1/opennms-model/src/main/java/org/opennms/netmgt/model/OnmsEvent.java) | events |
 | [OnmsNode.java](https://github.com/OpenNMS/opennms/blob/opennms-33.1.6-1/opennms-model/src/main/java/org/opennms/netmgt/model/OnmsNode.java)   | node  |
 
-Spend a little time browsing the entity objects and seeing how they relate to the database.
+It is worth spending a little time browsing the entity objects and understanding how they relate to the database.
 
 ## Event Translator ( example with linkUp linkDown events )
 
@@ -149,9 +149,9 @@ All of the SNMP trap varbinds become parameters in an event and we will look at 
 Remember that OpenNMS events only usually  care about the position of a varbind, not its name. 
 But in this case the name is very important as the name changes with the ifIndex.
 
-The link up and down events from devices are a bit complicated to interpret, particularly since the ifIndex of a port can move around depending on the configuration of the device. 
+The link up and down events from devices are a bit complicated for users to interpret, particularly since the ifIndex of a port can move around depending on the configuration of the device. 
 
-The SNMP trap definition for a link down event will always have a varbind parameter named after the oid of the ifIndex of the link which has gone down.
+The SNMP trap definition for a link down event will always have a varbind parameter named after the oid of the `ifIndex` of the link which has gone down.
 
 So we are looking for a paramater (varbind) with the name .1.3.6.1.2.1.2.2.1.1.IFINDEX where IFINDEX is the number of the interface and will tell us which row in the OpenNMS interface table we are looking for.
 
@@ -237,13 +237,13 @@ If the sql statement returns no result, the `ifDescr` parameter will be given th
 The SQL is actually a JDBC query where each `?` mark is substituted with a value.
 
 The first value is the `nodeid` of the node creating the event. 
-The `matches=".*"` allows us to use a regular expression to only match certain values of nodeid.
-In this case all values of nodeid are matched so we are looking for the interface on this node.
+The `matches=".*"` allows us to use a regular expression (sometimes referred to as a `regex`) to only match certain values of nodeid.
+In this case the regex `.*` means that all values of nodeid are matched so we are looking for the interface on this node.
 
-The second value will be the contents of the parameter (varbind) which gives the ifIndex of the link that has gone down
+The second value will be the contents of the parameter (varbind) which gives the `ifIndex` of the link that has gone down
 
 In this case we are using a regular expression to extract the last number characters from the .1.3.6.1.2.1.2.2.1.1.nn oid. 
-The last number `nn` will be the ifIndex we can use to look up the snmpInterface table.
+The last number `nn` will be the `ifIndex` we can use to look up the opennms `snmpInterface` table.
 
 > **Regular Expressions (regex)**
 > Regular expressions are a sequence of characters that forms a search pattern to find one or more sequences of characters in a text string
@@ -258,8 +258,7 @@ The last number `nn` will be the ifIndex we can use to look up the snmpInterface
 > ![alt text](../session4/images/regex101-1.png "Figure regex101-1.png")
 >
 
-
-Armed with the nodeid and interface ifIndex, we can use the sql query to look up the interface in the snmpInteface table and extract the snmpIfdescr i.e. the interface descriptor field. 
+Armed with the nodeid and interface ifIndex, we can use the sql query to look up the interface in the snmpInteface table and extract the `snmpIfdescr` i.e. the interface descriptor field. 
 A similar assignment is repeated for all 3 values we want to include in the new event.
 
 If this appears complicated, don't worry, it is! but it shows us the power of the Event Translator to usefully enhance the date in events and alarms.
