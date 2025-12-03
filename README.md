@@ -24,7 +24,7 @@ Enjoy &#128512;
 
 [session3](../main/session3/) Introduction to Alarms and Events
 
-[session4](../main/session4/) Database Event and Alarm Enrichment
+[session4](../main/session4/) Database Event and Alarm Enrichment and Jboss (Drools) Rules
 
 [session5](../main/session5/) Performance Data Collection 1
 
