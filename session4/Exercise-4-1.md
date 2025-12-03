@@ -234,7 +234,9 @@ In this code snippet, we can see that we are adding a new parameter called `ifDe
 
 If the sql statement returns no result, the `ifDescr` parameter will be given the default value `Unknown`.
 
-The SQL is actually a JDBC query where each `?` mark is substituted with a value.
+The SQL is actually a [JDBC](https://en.wikipedia.org/wiki/Java_Database_Connectivity) query where each `?` mark is substituted with a value.
+(Note for developers - the Event Translator uses JDBC SQL queries directly with the database and bypasses Hibernate. 
+It does not use the Hibernate or JPA query language).
 
 The first value is the `nodeid` of the node creating the event. 
 The `matches=".*"` allows us to use a regular expression (sometimes referred to as a `regex`) to only match certain values of nodeid.
@@ -258,10 +260,10 @@ The last number `nn` will be the `ifIndex` we can use to look up the opennms `sn
 > ![alt text](../session4/images/regex101-1.png "Figure regex101-1.png")
 >
 
-Armed with the nodeid and interface ifIndex, we can use the sql query to look up the interface in the snmpInteface table and extract the `snmpIfdescr` i.e. the interface descriptor field. 
+Armed with the `nodeid` and interface `ifIndex`, we can use the sql query to look up the interface in the snmpInteface table and extract the `snmpIfdescr` i.e. the interface descriptor field. 
 A similar assignment is repeated for all 3 values we want to include in the new event.
 
-If this appears complicated, don't worry, it is! but it shows us the power of the Event Translator to usefully enhance the date in events and alarms.
+If this appears complicated, don't worry, it is!, but it shows us the power of the Event Translator to usefully enhance the data in events and alarms.
 
 In most cases we don't need to use such complex configurations and the configuration for the next use case will be much simpler.
 
