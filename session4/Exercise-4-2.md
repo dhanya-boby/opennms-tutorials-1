@@ -50,4 +50,4 @@ A starting point is provided at the end of the file `Translations FOR CAMERA CON
 Modify this to do a database lookup.
 
 You will find the answer here (but try the exercise first).
-[Exercise-4-2 Answer](../session4/EventTranslator/Exercise4-2-answer.md)
+[Exercise-4-2 Answer](../session4/Exercise4-2-answer.md)
