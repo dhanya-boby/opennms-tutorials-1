@@ -123,7 +123,7 @@ By themselves SNMP link traps only tell us the `ifIndex` of the interface which 
 The name and type of this interface is not supplied in the trap.
 However the name of the interface (`eth0` `eth1` etc) is very useful to the user.
 
-OpenNMS regularly scans the IF table of a device and will already have the additional information for a given `ifIndex` so we need to extract the `ifIndex` from the trap and look up the additional information in the interface table before adding it into the event which the user will see.
+OpenNMS regularly scans the `ifTable` of a device and will already have the additional information for a given `ifIndex` so we need to extract the `ifIndex` from the trap and look up the additional information in the interface table before adding it into the event which the user will see.
 
 You will see from the following mib browser walk if the trap has given us the `ifIndex oid`, we can find the other information from the SNMP interface table previously read by OpenNMS. 
 
