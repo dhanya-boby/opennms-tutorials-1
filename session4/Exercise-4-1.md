@@ -113,7 +113,7 @@ It is worth spending a little time browsing the entity objects and understanding
 ## Event Translator ( example with linkUp linkDown events )
 
 Often, not all of the information required to provide useful reporting is in a given trap and so the event presented to the user needs enriched from additional data sources.
-The [Event Translator](https://docs.opennms.com/horizon/33/operation/deep-dive/events/event-translator.html) is a tool which can create a new event from an existing event which is enriched with data from the database.
+The [Event Translator](https://docs.opennms.com/horizon/33/operation/deep-dive/events/event-translator.html) is a tool that can create a new event from an existing event which is enriched with data from the database.
 
 The unmodified [translator-configuration.xml](../pristine-opennms-config-files/etc-pristine/translator-configuration.xml) runs by default in OpenNMS.
 
