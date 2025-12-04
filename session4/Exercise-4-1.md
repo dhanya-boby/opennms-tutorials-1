@@ -17,6 +17,7 @@ Although Vacuumd is mostly deprecated, it still has an important role in schedul
 The configuration for Vaccumd is held in [/etc/vacuumd-configuration.xml](../pristine-opennms-config-files/etc-pristine/vacuumd-configuration.xml)
 
 We will not look further at `Vacuumd` in this training but will instead concentrate on the `Event Translator`.
+
 Firstly, however, we will begin by examining the OpenNMS database.
 
 ## Viewing the OpenNMS database
@@ -33,22 +34,22 @@ cd EventTranslator/minimal-minion-activemq
 docker compose up -d
 ```
 
-Once the database is created, you can view it on the pgAdmin4 database viewer at http://localhost:8888/
+Once the database is created, you can view it on the `pgAdmin4` database viewer at http://localhost:8888/
 
-* username: user-name@domain-name.com
-* password: minad1234
+* username: `user-name@domain-name.com`
+* password: `minad1234`
 
-Once logged into pgAdmin4, select the `servers` tree entry.
+Once logged into `pgAdmin4`, select the `servers` tree entry.
 
 You will be asked to enter the password for the user `postgres` to connect to the server `database`
-* user: postgres
-* password:  postgres
+* user: `postgres`
+* password:  `postgres`
 
 Then under `databases` you will see the database `opennms` if it has been created.
 
 Under `opennms` you will see an entry `schemas` and under that you will see `tables` where all 115 or so OpenNMS tables are listed.
 
-In the top bar of pgAdmin4, under `tools` you can select the `Query Tool` which will allow you to enter queries.
+In the top bar of `pgAdmin4`, under `tools` you can select the `Query Tool` which will allow you to enter queries.
 
 The following diagram shows the query tool open.
 
@@ -66,12 +67,24 @@ or to see only the node named `localhost`
 select * from node where nodelabel = 'localhost';
 ```
 
+Have a look at the events table
+
+```
+select * from alarms;
+```
+
+and the alarms table
+
+```
+select * from events;
+```
+
 Note that in OpenNMS, most of the model objects (Entities) are backed by a database table (although some objects are created from table joins).
 
 Most model class names begin with `Onms...` e.g. `OnmsAlarm.java`.
 
 The `@Table` annotation in each entity class will point to the database table backing the object.
-For instance [OnmsAlarm.java](https://github.com/OpenNMS/opennms/blob/opennms-33.1.6-1/opennms-model/src/main/java/org/opennms/netmgt/model/OnmsAlarm.java)
+For instance see [OnmsAlarm.java](https://github.com/OpenNMS/opennms/blob/opennms-33.1.6-1/opennms-model/src/main/java/org/opennms/netmgt/model/OnmsAlarm.java)
 
 ```
 @Entity
@@ -103,17 +116,17 @@ The unmodified [translator-configuration.xml](../pristine-opennms-config-files/e
 
 We will consider the `Improved LinkDown/LinkUp events` translator definition which improves the SNMP link events.
 
-By themselves SNMP link events only tell us the `ifIndex` of the interface which has gone down.
+By themselves SNMP link traps only tell us the `ifIndex` of the interface which has gone down.
 The name and type of this interface is not supplied in the trap.
-However the name (eth0 eth1 etc) is very useful to the user.
+However the name of the interface (`eth0` `eth1` etc) is very useful to the user.
 
-OpenNMS regularly scans the IF table of a device and will already have the additional information for a given ifIndex so we need to extract the ifIndex from the trap and look up the information in the interface table before adding it into the event which the user will see.
+OpenNMS regularly scans the IF table of a device and will already have the additional information for a given `ifIndex` so we need to extract the `ifIndex` from the trap and look up the additional information in the interface table before adding it into the event which the user will see.
 
-You will see from the following mib browser walk if the trap has given us the ifIndex oid, we can find the other information from the SNMP interface table previously read by OpenNMS. 
+You will see from the following mib browser walk if the trap has given us the `ifIndex oid`, we can find the other information from the SNMP interface table previously read by OpenNMS. 
 
 ![alt text](../session4/images/ifindex.png "Figure ifindex.png")
 
-The definition which turns an SNMP LinkDown trap into an event is in the file [etc/events/opennms.snmp.trap.translator.events.xml](../pristine-opennms-config-files/etc-pristine/events/opennms.snmp.trap.translator.events.xml).
+The definition which turns an SNMP `LinkDown` trap into an event is in the file [etc/events/opennms.snmp.trap.translator.events.xml](../pristine-opennms-config-files/etc-pristine/events/opennms.snmp.trap.translator.events.xml).
 
 ```
    <event>
@@ -146,14 +159,14 @@ Note that `<logmsg dest="donotpersist">` means that this event is never persiste
 
 All of the SNMP trap varbinds become parameters in an event and we will look at these parameters in the translator.
 
-Remember that OpenNMS events only usually  care about the position of a varbind, not its name. 
-But in this case the name is very important as the name changes with the ifIndex.
+Remember that OpenNMS events only usually care about the position of a varbind, not its name. 
+But in this case the oid name of a varbind is very important as the name changes with the ifIndex.
 
-The link up and down events from devices are a bit complicated for users to interpret, particularly since the ifIndex of a port can move around depending on the configuration of the device. 
+The link up and down events from devices are a bit complicated for users to interpret, particularly since the `ifIndex` of a port can move around depending on the configuration of the device. 
 
 The SNMP trap definition for a link down event will always have a varbind parameter named after the oid of the `ifIndex` of the link which has gone down.
 
-So we are looking for a paramater (varbind) with the name .1.3.6.1.2.1.2.2.1.1.IFINDEX where IFINDEX is the number of the interface and will tell us which row in the OpenNMS interface table we are looking for.
+So we are looking for a parameter (varbind) with the name `.1.3.6.1.2.1.2.2.1.1.IFINDEX` where `IFINDEX` is the number of the interface and will tell us which row in the OpenNMS interface table we are looking for.
 
 The following excerpt from [translator-configuration.xml](../pristine-opennms-config-files/etc-pristine/translator-configuration.xml) shows how this event is processed.
 
@@ -215,7 +228,7 @@ The simplest mapping will create a duplicate of the original event including all
 ```
 
 The more complicated mapping will create a new  event `uei.opennms.org/translator/traps/SNMP_Link_Down` with all of its varbinds copied.
-This event needs to have thee extra parameters `ifDiscr`,`ifName` and `ifAlias`, which are not available in the original trap but which may be available in in the `snmpInterfaces` table of the OpenNMS database.
+This event needs to have three extra parameters `ifDiscr`,`ifName` and `ifAlias`, which are not available in the original trap but which may be available in in the `snmpInterfaces` table of the OpenNMS database.
 
 The `snmpInterfaces` table is populated for a node if it has an SNMP agent which has successfully been read by OpenNMS.
 This table can contain useful additional information which is not in the original trap to identify the description, name and alias of the interface.
@@ -234,7 +247,7 @@ In this code snippet, we can see that we are adding a new parameter called `ifDe
 
 If the sql statement returns no result, the `ifDescr` parameter will be given the default value `Unknown`.
 
-The SQL is actually a [JDBC](https://en.wikipedia.org/wiki/Java_Database_Connectivity) query where each `?` mark is substituted with a value.
+The SQL is actually a [JDBC](https://en.wikipedia.org/wiki/Java_Database_Connectivity) query where each question mark `?`  is substituted with a value.
 (Note for developers - the Event Translator uses JDBC SQL queries directly with the database and bypasses Hibernate. 
 It does not use the Hibernate or JPA query language).
 
@@ -244,8 +257,8 @@ In this case the regex `.*` means that all values of nodeid are matched so we ar
 
 The second value will be the contents of the parameter (varbind) which gives the `ifIndex` of the link that has gone down
 
-In this case we are using a regular expression to extract the last number characters from the .1.3.6.1.2.1.2.2.1.1.nn oid. 
-The last number `nn` will be the `ifIndex` we can use to look up the opennms `snmpInterface` table.
+In this case we are using a regular expression to extract the last number characters from the `.1.3.6.1.2.1.2.2.1.1.nn` oid. 
+The last number `nn` will be the `ifIndex` we can use to look up the OpenNMS `snmpInterface` table.
 
 > **Regular Expressions (regex)**
 > Regular expressions are a sequence of characters that forms a search pattern to find one or more sequences of characters in a text string
@@ -261,6 +274,7 @@ The last number `nn` will be the `ifIndex` we can use to look up the opennms `sn
 >
 
 Armed with the `nodeid` and interface `ifIndex`, we can use the sql query to look up the interface in the snmpInteface table and extract the `snmpIfdescr` i.e. the interface descriptor field. 
+
 A similar assignment is repeated for all 3 values we want to include in the new event.
 
 If this appears complicated, don't worry, it is!, but it shows us the power of the Event Translator to usefully enhance the data in events and alarms.
