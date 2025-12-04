@@ -37,7 +37,6 @@ The SQL search uses this value to find the node so that the new event has the co
             </mapping>
          </mappings>
       </event-translation-spec>
-      
 ```
 
 A complete answer is here with all of the event translations : [all events translator-configuration.xml](../session4/Exercise4-2-answer/all-events-answer/translator-configuration.xml)
@@ -52,7 +51,6 @@ If you inject a trap through the `camera-controller`, you will see two sets of e
 
 ```
 docker compose exec camera-controller bash
-
 
 #### panMotor raise
 snmptrap -v 2c -c public horizon:1162 ""  .1.3.6.1.4.1.52330.6.2.0.1        .1.3.6.1.4.1.52330.6.2.7.0 s camera_008   .1.3.6.1.4.1.52330.6.2.1.0 i 0  .1.3.6.1.4.1.52330.6.2.5.0 i 1
@@ -75,5 +73,7 @@ You would then add `<logmsg dest="donotpersist">` to the camera-controller trap 
 That way the camera-controller events would never be peristed or displayed but would change into events which apper to come from the cameras themselves.
 
 I will leave it to you to work on this exercise if you wish.
+
+
 
 

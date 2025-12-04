@@ -22,7 +22,7 @@ In [Exercise-4-1](../session4/Exercise-4-1.md) we will look at the OpenNMS Datab
 
 In [Exercise-4-2](../session4/Exercise-4-2.md) we will create a real event translator example for our smart motorway.
 
-We looked in [Session 2](../session2/README.md) at how `Business Service Monitoring` can build a graph of services which allows us to determine the business impact of a monitored service failure and create business service alarms.
+We looked in [Session 2 Business Service Monitoring](../session2/Exercise2-3-business-service-monitoring.md) at how `Business Service Monitoring` can build a graph of services which allows us to determine the business impact of a monitored service failure and create business service alarms.
 `Business Service Monitoring` is useful and quite easy to configure but it is limited in that you need to create a business service graph for every business service instance. 
 This can quickly become tedious and difficult to maintain for a large number of services.
 

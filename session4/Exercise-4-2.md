@@ -23,11 +23,11 @@ You should use the docker compose project under the `EventTranslator` folder for
 
 [/session4/EventTranslator/minimal-minion-activemq](../session4/EventTranslator/minimal-minion-activemq).
 
-The cameras and camera controllers are defined in the [camera-locations.xml requisition](../session4/EventTranslator/minimal-minion-activemq/container-fs/horizon/opt/opennms-overlay/etc/imports/camera-locations.xml).
+The cameras and camera controllers are defined in the [camera-locations.xml](../session4/EventTranslator/minimal-minion-activemq/container-fs/horizon/opt/opennms-overlay/etc/imports/camera-locations.xml) requisition.
 
 You should import this requisition to define the cameras and `camera-controller` when you start OpenNMS.
 The cameras are named after the fashion; `camera_001`, `camera_002` etc. 
-Each camera also has an asset record defining the latitude and longitude of its location which creates the following map;
+Each camera also has an asset record defining the `latitude` and `longitude` of its location which creates the following map;
 
 ![alt text](../session4/images/chubb-cameras.png "Figure chubb-cameras.png")
 
