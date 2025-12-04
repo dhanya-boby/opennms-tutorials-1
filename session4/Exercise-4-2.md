@@ -37,7 +37,7 @@ Each camera has a unique `cameraIdentifier` to identify it in the `camera-contro
 
 The traps sent from the `camera-controller` follow exactly the same pattern as the traps in the previous exercise but they all have an extra string varbind which contains the cameraIdentifier.
 
-Example traps are provided in [CAMERA-CONTROLLER Trap Examples](../session4/TrapExamplesCAMERA-CONTROLLER.md)
+Example traps are provided for camera_008 in [CAMERA-CONTROLLER Trap Examples](../session4/TrapExamplesCAMERA-CONTROLLER.md)
 
 These traps match the event configuration here [etc/events/CAMERA-CONTROLLER-MIB.events.xml](../session4/EventTranslator/minimal-minion-activemq/container-fs/horizon/opt/opennms-overlay/etc/events/CAMERA-CONTROLLER-MIB.events.xml) 
 
